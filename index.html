@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<script>
+//定义一个数组存储图片链接
+var images = [];
+//定义一个变量存储当前页数
+var currentPage = 1;
+//定义一个变量存储每页显示的图片数量
+var pageSize = 3;
+var newPageSize = null;
+//定义一个变量存储总页数
+var totalPages = 0;
+//定义一个数组存储被选中的图片链接
+var selectedImages = [];
+
+
+
+//定义一个函数，用于从文本框中读取图片链接，并添加到数组中
+function loadImages(newPageSize) {
+  //获取文本框的内容
+  var text = document.getElementById("input").value;
+  //按换行符分割文本，得到一个字符串数组
+  text = text.replace(/\t/g, "\n");
+  var lines = text.split("\n");
+  //遍历字符串数组，将每个元素添加到图片数组中
+  for (var i = 0; i < lines.length; i++) {
+    images.push(lines[i]);
+  }
+  //计算总页数，向上取整
+  pageSize = newPageSize || pageSize;  // 如果提供了新页面大小则使用，否则使用默认值
+  totalPages = Math.ceil(images.length / pageSize);
+  //更新总页数的显示
+  document.getElementById("total").innerHTML = totalPages;
+  //调用显示图片的函数，传入第一页作为参数
+  showImages(1, pageSize);
+}
+
+// 新增一个函数来设置每页图片数量
+function setPageSize(newPageSize) {
+  if (isNaN(newPageSize) || newPageSize <= 0) return;
+<!--  pageSize = parseInt(newPageSize);-->
+
+  // 计算新的当前页数
+  var oldPageIndex = (currentPage - 1) * pageSize + 1;
+  var newPageIndex = Math.floor(oldPageIndex / newPageSize) + 1;
+  totalPages = Math.ceil(images.length / newPageSize);
+  //更新总页数的显示
+  document.getElementById("total").innerHTML = totalPages;
+  // 确保新的页数在有效范围内
+  if (newPageIndex > totalPages) {
+    newPageIndex = totalPages;
+  }
+
+  currentPage = newPageIndex;
+  pageSize = parseInt(newPageSize);
+  showImages(currentPage, newPageSize);
+}
+
+// 新增一个函数来跳转到指定页面
+function goToPage(page) {
+  if (isNaN(page) || page < 1 || page > totalPages) return;
+  currentPage = parseInt(page);
+  showImages(currentPage, pageSize);
+}
+
+
+//定义一个函数，用于根据页数显示图片
+function showImages(page, pageSize) {
+  //获取图片容器的元素
+  var container = document.getElementById("container");
+  //清空容器的内容
+  container.innerHTML = "";
+  //计算当前页的起始索引和结束索引
+  var startIndex = (page - 1) * pageSize;
+  var endIndex = Math.min(page * pageSize, images.length);
+  //遍历当前页的图片链接，创建图片元素并添加到容器中
+  for (var i = startIndex; i < endIndex; i++) {
+    //创建一个div元素，用于包裹图片和复选框
+    var div = document.createElement("div");
+    div.style.display = "inline-block";
+    div.style.margin = "10px";
+    //创建一个img元素，设置其src属性为图片链接
+    if (images[i].includes(".mp4")) {
+        var img = document.createElement("video");
+    } else {
+        var img = document.createElement("img");
+    }
+
+    img.src = images[i];
+    img.width = "384";
+    img.autoplay = true;
+    img.muted = true;
+    img.loop = true;
+<!--    img.height = "500";-->
+    //给图片添加一个onclick属性，用于切换复选框的状态
+    img.onclick = function() {
+      //获取图片对应的复选框元素
+      var checkbox = this.nextSibling;
+      //如果复选框被选中，将其取消选中，并将其值从被选中的图片数组中移除
+      if (checkbox.checked) {
+        checkbox.checked = false;
+        var index = selectedImages.indexOf(checkbox.value);
+        if (index > -1) {
+          selectedImages.splice(index, 1);
+        }
+      } else {
+        //如果复选框未被选中，将其选中，并将其值添加到被选中的图片数组中
+        checkbox.checked = true;
+        selectedImages.push(checkbox.value);
+      }
+    };
+    //创建一个input元素，设置其type属性为checkbox，用于表示选中状态
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = images[i];
+    //给复选框添加一个点击事件，用于更新被选中的图片数组
+    checkbox.onclick = function() {
+      //如果复选框被选中，将其值添加到被选中的图片数组中
+      if (this.checked) {
+        selectedImages.push(this.value);
+      } else {
+        //如果复选框被取消选中，将其值从被选中的图片数组中移除
+        var index = selectedImages.indexOf(this.value);
+        if (index > -1) {
+          selectedImages.splice(index, 1);
+        }
+      }
+    };
+    //判断当前图片链接是否在被选中的图片数组中，如果是，就将对应的复选框设置为选中状态
+    if (selectedImages.includes(images[i])) {
+      checkbox.checked = true;
+    }
+    //将图片和复选框添加到div元素中
+    div.appendChild(img);
+    div.appendChild(checkbox);
+    //将div元素添加到容器中
+    container.appendChild(div);
+  }
+  //更新当前页数的显示
+  document.getElementById("current").innerHTML = page;
+}
+
+//定义一个函数，用于显示上一页的图片
+function prevPage() {
+  //如果当前页数大于1，将当前页数减一，并调用显示图片的函数
+  if (currentPage > 1) {
+    currentPage--;
+    showImages(currentPage, pageSize);
+  }
+}
+
+//定义一个函数，用于显示下一页的图片
+function nextPage() {
+  //如果当前页数小于总页数，将当前页数加一，并调用显示图片的函数
+  if (currentPage < totalPages) {
+    currentPage++;
+    showImages(currentPage, pageSize);
+  }
+}
+
+//定义一个函数，用于导出被选中的图片链接
+function exportImages() {
+  var button = document.getElementById('exportButton');
+  //获取输出框的元素，并清空其内容
+  var output = document.getElementById("output");
+  output.innerHTML = selectedImages.join("\n");
+}
+<!--button.addEventListener('click', exportImages);-->
+
+// 监听键盘事件
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowLeft') { // 左箭头键
+        prevPage();
+    } else if (event.key === 'ArrowRight') { // 右箭头键
+        nextPage();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  // 更新按钮事件，增加设置每页图片数量和跳转到指定页面的功能
+  document.getElementById('pageSizeInput').addEventListener('change', function() {
+    setPageSize(this.value);
+  });
+
+  document.getElementById('goToPageInput').addEventListener('change', function() {
+    const page = parseInt(this.value);
+    if (!isNaN(page)) {
+      goToPage(page);
+      this.value = '';
+    }
+  });
+});
+
+<!--window.onload = loadImages;-->
+
+function filterImages(regexStr) {
+    if (!regexStr) return;
+    try {
+        var regex = new RegExp(regexStr, 'i'); // 创建不区分大小写的正则表达式
+        images = images.filter(url => regex.test(url)); // 筛选出匹配正则表达式的图片
+        currentPage = 1; // 重置当前页数
+        totalPages = Math.ceil(images.length / pageSize); // 重新计算总页数
+          //更新总页数的显示
+        document.getElementById("total").innerHTML = totalPages;
+        showImages(currentPage, pageSize); // 显示筛选后的第一页面图片
+    } catch (error) {
+        alert("无效的正则表达式，请检查后重试。");
+    }
+}
+
+</script>
+</head>
+<body>
+<h1>图片展示和选择</h1>
+<p>请在下面的文本框中输入多行图片链接，每行一个链接</p>
+<textarea id="input" rows="10" cols="100"></textarea>
+<input type="text" id="filterInput" placeholder="正则表达式">
+<button onclick="filterImages(document.getElementById('filterInput').value)">筛选图片</button>
+<div></div>
+<button onclick="loadImages(newPageSize)">加载图片</button>
+<button onclick="prevPage()">上一页</button>
+<button onclick="nextPage()">下一页</button>
+<button id="exportButton" onclick="exportImages()">导出选中的图片链接</button>
+<input type="number" id="pageSizeInput" placeholder="每页图片数量" min="1">
+<input type="text" id="goToPageInput" placeholder="跳转到页码" onfocus="this.placeholder = ''" onblur="this.placeholder = '跳转到页码'">
+<div></div>
+<p>当前第<span id="current">0</span>页，共<span id="total">0</span>页</p>
+<div id="container"></div>
+
+
+<p>输出框：</p>
+<textarea id="output" rows="10" cols="100"></textarea>
+</body>
+</html>
