@@ -2,14 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .content-box {
+        width: 200px; /* 每个content box的宽度 */
+        margin: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        display: inline-block; /* 从左向右展示 */
+        vertical-align: top; /* 垂直对齐 */
+    }
+    .checkbox {
+        margin-right: 10px;
+    }
+    .content-area {
+        display: flex;
+        flex-wrap: wrap; /* 允许换行 */
+    }
+</style>
 <script>
 //定义一个数组存储图片链接
 var images = [];
 //定义一个变量存储当前页数
 var currentPage = 1;
 //定义一个变量存储每页显示的图片数量
-var pageSize = 3;
-var newPageSize = null;
+var pageSize = 8;
+var newPageSize = 8;
+var lineSize = 4;
+var newLineSize = 4;
 //定义一个变量存储总页数
 var totalPages = 0;
 //定义一个数组存储被选中的图片链接
@@ -25,6 +48,7 @@ function loadImages(newPageSize) {
   text = text.replace(/\t/g, "\n");
   var lines = text.split("\n");
   //遍历字符串数组，将每个元素添加到图片数组中
+  images = [];
   for (var i = 0; i < lines.length; i++) {
     images.push(lines[i]);
   }
@@ -34,13 +58,12 @@ function loadImages(newPageSize) {
   //更新总页数的显示
   document.getElementById("total").innerHTML = totalPages;
   //调用显示图片的函数，传入第一页作为参数
-  showImages(1, pageSize);
+  showImages(1, pageSize, lineSize);
 }
 
 // 新增一个函数来设置每页图片数量
 function setPageSize(newPageSize) {
   if (isNaN(newPageSize) || newPageSize <= 0) return;
-<!--  pageSize = parseInt(newPageSize);-->
 
   // 计算新的当前页数
   var oldPageIndex = (currentPage - 1) * pageSize + 1;
@@ -55,19 +78,27 @@ function setPageSize(newPageSize) {
 
   currentPage = newPageIndex;
   pageSize = parseInt(newPageSize);
-  showImages(currentPage, newPageSize);
+  showImages(currentPage, pageSize, lineSize);
+}
+
+// 新增一个函数来设置每页图片数量
+function setLineSize(newLineSize) {
+  if (isNaN(newLineSize) || newLineSize <= 0) return;
+  newLineSize = parseInt(newLineSize);
+  lineSize = newLineSize;
+  showImages(currentPage, pageSize, lineSize);
 }
 
 // 新增一个函数来跳转到指定页面
 function goToPage(page) {
   if (isNaN(page) || page < 1 || page > totalPages) return;
   currentPage = parseInt(page);
-  showImages(currentPage, pageSize);
+  showImages(currentPage, pageSize, lineSize);
 }
 
 
 //定义一个函数，用于根据页数显示图片
-function showImages(page, pageSize) {
+function showImages(page, pageSize, lineSize) {
   //获取图片容器的元素
   var container = document.getElementById("container");
   //清空容器的内容
@@ -82,18 +113,30 @@ function showImages(page, pageSize) {
     div.style.display = "inline-block";
     div.style.margin = "10px";
     //创建一个img元素，设置其src属性为图片链接
-    if (images[i].includes(".mp4")) {
+    if (isJsonString(images[i])) {
+        var img = document.createElement("text");
+        img.style.whiteSpace = 'pre-wrap';
+        img.width = "384";
+        text = JSON.stringify(JSON.parse(images[i]), null, 2) + '\n\n'; // 格式化JSON并换行
+        img.textContent = text;
+    } else if (images[i].includes(".mp4")) {
         var img = document.createElement("video");
-    } else {
+        img.src = images[i];
+        img.width = "384";
+        img.autoplay = true;
+        img.muted = true;
+        img.loop = true;
+    } else if (images[i].includes(".jpg") || images[i].includes(".png") || images[i].includes(".gif")) {
         var img = document.createElement("img");
+        img.src = images[i];
+        img.width = "384";
+        img.autoplay = true;
+        img.muted = true;
+        img.loop = true;
+    } else {
+        text = images[i] + '\n'; // 普通文本直接加换行
+        img.textContent = text;
     }
-
-    img.src = images[i];
-    img.width = "384";
-    img.autoplay = true;
-    img.muted = true;
-    img.loop = true;
-<!--    img.height = "500";-->
     //给图片添加一个onclick属性，用于切换复选框的状态
     img.onclick = function() {
       //获取图片对应的复选框元素
@@ -137,9 +180,24 @@ function showImages(page, pageSize) {
     div.appendChild(checkbox);
     //将div元素添加到容器中
     container.appendChild(div);
+    if (lineSize != null && (i-startIndex+1) % lineSize == 0) {
+        // 换行
+        var breakTag = document.createElement('br');
+        container.appendChild(breakTag);
+    }
   }
   //更新当前页数的显示
   document.getElementById("current").innerHTML = page;
+}
+
+// 检查字符串是否为JSON格式
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
 }
 
 //定义一个函数，用于显示上一页的图片
@@ -147,7 +205,7 @@ function prevPage() {
   //如果当前页数大于1，将当前页数减一，并调用显示图片的函数
   if (currentPage > 1) {
     currentPage--;
-    showImages(currentPage, pageSize);
+    showImages(currentPage, pageSize, lineSize);
   }
 }
 
@@ -156,7 +214,7 @@ function nextPage() {
   //如果当前页数小于总页数，将当前页数加一，并调用显示图片的函数
   if (currentPage < totalPages) {
     currentPage++;
-    showImages(currentPage, pageSize);
+    showImages(currentPage, pageSize, lineSize);
   }
 }
 
@@ -184,6 +242,10 @@ document.addEventListener('DOMContentLoaded', function() {
     setPageSize(this.value);
   });
 
+  document.getElementById('lineSizeInput').addEventListener('change', function() {
+    setLineSize(this.value);
+  });
+
   document.getElementById('goToPageInput').addEventListener('change', function() {
     const page = parseInt(this.value);
     if (!isNaN(page)) {
@@ -193,7 +255,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-<!--window.onload = loadImages;-->
 
 function filterImages(regexStr) {
     if (!regexStr) return;
@@ -204,7 +265,7 @@ function filterImages(regexStr) {
         totalPages = Math.ceil(images.length / pageSize); // 重新计算总页数
           //更新总页数的显示
         document.getElementById("total").innerHTML = totalPages;
-        showImages(currentPage, pageSize); // 显示筛选后的第一页面图片
+        showImages(currentPage, pageSize, lineSize); // 显示筛选后的第一页面图片
     } catch (error) {
         alert("无效的正则表达式，请检查后重试。");
     }
@@ -223,7 +284,8 @@ function filterImages(regexStr) {
 <button onclick="prevPage()">上一页</button>
 <button onclick="nextPage()">下一页</button>
 <button id="exportButton" onclick="exportImages()">导出选中的图片链接</button>
-<input type="number" id="pageSizeInput" placeholder="每页图片数量" min="1">
+<input type="number" id="pageSizeInput" placeholder="每页数量" min="1">
+<input type="number" id="lineSizeInput" placeholder="每行数量" min="1">
 <input type="text" id="goToPageInput" placeholder="跳转到页码" onfocus="this.placeholder = ''" onblur="this.placeholder = '跳转到页码'">
 <div></div>
 <p>当前第<span id="current">0</span>页，共<span id="total">0</span>页</p>
