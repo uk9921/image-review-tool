@@ -134,6 +134,9 @@ function showImages(page, pageSize, lineSize) {
         img.muted = true;
         img.loop = true;
     } else {
+        var img = document.createElement("text");
+        img.style.whiteSpace = 'pre-wrap';
+        img.width = "384";
         text = images[i] + '\n'; // 普通文本直接加换行
         img.textContent = text;
     }
