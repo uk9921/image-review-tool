@@ -126,7 +126,7 @@ function showImages(page, pageSize, lineSize) {
         img.autoplay = true;
         img.muted = true;
         img.loop = true;
-    } else if (images[i].includes(".jpg") || images[i].includes(".png") || images[i].includes(".gif")) {
+    } else if (images[i].includes(".jpg") || images[i].includes(".png") || images[i].includes(".gif") || images[i].includes(".jpeg")) {
         var img = document.createElement("img");
         img.src = images[i];
         img.width = "384";
