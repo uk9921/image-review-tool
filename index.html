@@ -114,9 +114,13 @@ function showImages(page, pageSize, lineSize) {
     div.style.margin = "10px";
     //创建一个img元素，设置其src属性为图片链接
     if (isJsonString(images[i])) {
-        var img = document.createElement("text");
-        img.style.whiteSpace = 'pre-wrap';
-        img.width = "384";
+        // var img = document.createElement("text");
+        var img = document.createElement('div');
+        img.style.width = '384'; // 设置固定宽度
+        img.style.wordWrap = 'break-word'; // 超过宽度自动换行
+        img.style.border = 'none'; // 去除边框
+        img.style.outline = 'none'; // 去除轮廓
+        img.style.resize = 'none'; // 无法调整大小
         text = JSON.stringify(JSON.parse(images[i]), null, 2) + '\n\n'; // 格式化JSON并换行
         img.textContent = text;
     } else if (images[i].includes(".mp4")) {
@@ -134,9 +138,14 @@ function showImages(page, pageSize, lineSize) {
         img.muted = true;
         img.loop = true;
     } else {
-        var img = document.createElement("text");
-        img.style.whiteSpace = 'pre-wrap';
-        img.width = "384";
+        // var img = document.createElement("text");
+        var img = document.createElement('div');
+        img.style.width = '384'; // 设置固定宽度
+        img.style.wordWrap = 'break-word'; // 超过宽度自动换行
+        img.style.border = 'none'; // 去除边框
+        img.style.outline = 'none'; // 去除轮廓
+        img.style.resize = 'none'; // 无法调整大小
+        
         text = images[i] + '\n'; // 普通文本直接加换行
         img.textContent = text;
     }
