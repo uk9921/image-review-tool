@@ -120,6 +120,7 @@ function showImages(page, pageSize, lineSize) {
         img.style.border = 'none'; // 去除边框
         img.style.outline = 'none'; // 去除轮廓
         img.style.resize = 'none'; // 无法调整大小
+        img.style.whiteSpace = 'pre'; // 保留空格和换行
         text = JSON.stringify(JSON.parse(images[i]), null, 2) + '\n\n'; // 格式化JSON并换行
         img.textContent = text;
     } else if (images[i].includes(".mp4")) {
