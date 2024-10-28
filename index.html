@@ -589,8 +589,10 @@ https://example.com/audio1.mp3"></textarea>
                     e.stopPropagation();
                     if (checkbox.checked) {
                         selectedImages.add(url);
+                        div.classList.add("selected");
                     } else {
                         selectedImages.delete(url);
+                        div.classList.remove("selected");
                     }
                     updateExportButton();
                 });
@@ -604,8 +606,10 @@ https://example.com/audio1.mp3"></textarea>
                     checkbox.checked = !checkbox.checked;
                     if (checkbox.checked) {
                         selectedImages.add(url);
+                        div.classList.add("selected");
                     } else {
                         selectedImages.delete(url);
+                        div.classList.remove("selected");
                     }
                     updateExportButton();
                 });
