@@ -587,6 +587,7 @@ https://example.com/audio1.mp3"></textarea>
                 // 初始化复选框状态
                 if (selectedImages.has(url)) {
                     checkbox.checked = true;
+                    div.classList.add("selected");
                 }
 
                 // 复选框事件处理
@@ -761,6 +762,8 @@ https://example.com/audio1.mp3"></textarea>
                 });
                 updateExportButton();
                 showFeedback("所有媒体项已选中。");
+                updatePagination();
+                renderImages();
             };
 
             // 批量取消选择所有当前页媒体
@@ -772,6 +775,8 @@ https://example.com/audio1.mp3"></textarea>
                 });
                 updateExportButton();
                 showFeedback("所有媒体项已取消选择。");
+                updatePagination();
+                renderImages();
             };
 
             // 搜索功能
