@@ -137,6 +137,8 @@
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 默认响应式 */
             gap: 20px;
             padding: 20px;
+            justify-items: center; /* 保持网格项居中对齐 */
+            justify-content: center; /* 居中整个网格 */
         }
 
         .media-item {
@@ -150,11 +152,15 @@
             display: flex;
             flex-direction: column;
             height: 100%; /* 使媒体项高度一致 */
+            max-width: 500px; /* 设置媒体项的最大宽度 */
+            width: auto; /* 改为 auto 以避免过度拉伸 */
         }
 
         .media-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            max-width: 100%; /* 确保媒体内容不超过容器宽度 */
+            max-height: 500px; /* 设置媒体内容的最大高度，防止过高 */
         }
 
         /* 媒体元素样式 */
@@ -675,7 +681,7 @@ https://example.com/audio1.mp3"></textarea>
                 const val = parseInt(e.target.value);
                 if (!isNaN(val) && val > 0) {
                     lineSize = val;
-                    groupImages(); // 重新分组媒体链接
+                    groupImages(originalImages); // 重新分组媒体链接
                     totalPages = Math.ceil(images.length / pageSize);
                     currentPage = Math.min(currentPage, totalPages);
                     updatePagination();
