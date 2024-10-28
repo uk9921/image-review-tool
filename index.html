@@ -18,6 +18,8 @@
             --feedback-color: green;
             --modal-background: #fff;
             --modal-text-color: #333;
+            --search-modal-background: #fff;
+            --search-modal-text-color: #333;
         }
 
         /* 深色主题变量 */
@@ -33,6 +35,8 @@
             --feedback-color: #4caf50;
             --modal-background: #555;
             --modal-text-color: #f4f4f4;
+            --search-modal-background: #555;
+            --search-modal-text-color: #f4f4f4;
         }
 
         /* 基础样式 */
@@ -331,6 +335,36 @@
         .batch-buttons button {
             margin: 0 5px;
         }
+
+        /* 放大镜搜索图标样式 */
+        .search-icon {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-color);
+            transition: color 0.3s;
+            margin-left: 10px;
+        }
+
+        .search-icon:hover {
+            color: var(--button-hover);
+        }
+
+        /* 搜索模态框样式 */
+        #searchModal .modal-content {
+            background-color: var(--search-modal-background);
+            color: var(--search-modal-text-color);
+        }
+
+        /* 搜索模式切换样式 */
+        .search-mode {
+            margin-top: 10px;
+        }
+
+        .search-mode label {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body class="light-theme">
@@ -342,12 +376,8 @@
                 <label for="input">媒体链接：</label><br>
                 <textarea id="input" placeholder="每行一个链接，例如：
 https://example.com/image1.jpg
-https://example.com/video1.mp4"></textarea>
-            </div>
-            <div>
-                <label for="filterInput">筛选（正则）：</label><br>
-                <input type="text" id="filterInput" placeholder="例如：\.jpg$">
-                <button onclick="filterImages()">筛选媒体</button>
+https://example.com/video1.mp4
+https://example.com/audio1.mp3"></textarea>
             </div>
             <div>
                 <button onclick="loadImages()">加载媒体</button>
@@ -356,8 +386,8 @@ https://example.com/video1.mp4"></textarea>
                 <button id="exportButton" onclick="exportImages()" disabled>导出选中链接</button>
             </div>
             <div>
-                <label for="pageSizeInput">每页数量：</label><br>
-                <input type="number" id="pageSizeInput" placeholder="例如：8" min="1">
+                <label for="pageSizeInput">每页行数：</label><br>
+                <input type="number" id="pageSizeInput" placeholder="例如：2" min="1">
             </div>
             <div>
                 <label for="lineSizeInput">每行数量：</label><br>
@@ -365,11 +395,11 @@ https://example.com/video1.mp4"></textarea>
             </div>
             <div>
                 <label for="goToPageInput">跳转到页码：</label><br>
-                <input type="text" id="goToPageInput" placeholder="例如：2">
+                <input type="text" id="goToPageInput" placeholder="例如：1">
             </div>
-            <!-- 主题切换按钮 -->
+            <!-- 扩展功能按钮 -->
+            <button class="search-icon" onclick="openSearch()" title="搜索媒体">🔍</button>
             <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
-            <!-- 帮助按钮 -->
             <button class="help-button" onclick="openHelp()" title="帮助">❓</button>
         </div>
     </div>
@@ -387,6 +417,20 @@ https://example.com/video1.mp4"></textarea>
     <textarea id="output" readonly></textarea>
     <!-- 反馈消息 -->
     <div id="feedback"></div>
+    <!-- 搜索模态框 -->
+    <div id="searchModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeSearch()">&times;</span>
+            <h2>搜索媒体</h2>
+            <input type="text" id="searchInput" placeholder="输入关键词或正则表达式进行搜索" style="width: 100%; padding: 8px; box-sizing: border-box;">
+            <div class="search-mode">
+                <label><input type="radio" name="searchMode" value="keyword" checked> 关键词搜索</label>
+                <label><input type="radio" name="searchMode" value="regex"> 正则表达式搜索</label>
+            </div>
+            <button onclick="performSearch()" style="margin-top: 10px;">搜索</button>
+            <button onclick="clearSearch()" style="margin-top: 10px; margin-left: 10px;">清空搜索</button>
+        </div>
+    </div>
     <!-- 帮助模态框 -->
     <div id="helpModal" class="modal">
         <div class="modal-content">
@@ -395,15 +439,16 @@ https://example.com/video1.mp4"></textarea>
             <p>欢迎使用多媒体展示与选择工具。以下是各功能的使用说明：</p>
             <ul>
                 <li><strong>加载媒体：</strong>将媒体链接粘贴到“媒体链接”文本框中，每行一个链接，然后点击“加载媒体”按钮。</li>
-                <li><strong>筛选媒体：</strong>在“筛选（正则）”输入框中输入正则表达式，如 <code>\.jpg$</code>，点击“筛选媒体”按钮仅显示匹配的媒体。</li>
-                <li><strong>选择媒体：</strong>将鼠标悬停在媒体项上，复选框将出现。点击复选框或直接点击媒体项进行选择或取消选择。</li>
-                <li><strong>媒体声音：</strong>将鼠标悬停在媒体项上，🔇将出现。点击🔇取消静音，点击🔊静音。</li>
+                <li><strong>按行筛选：</strong>点击顶部工具栏中的🔍放大镜图标，打开搜索模态框。在搜索框中输入关键词或正则表达式，并选择搜索模式（关键词搜索或正则表达式搜索），然后点击“搜索”按钮。</li>
+                <li><strong>清空搜索：</strong>在搜索模态框中，点击“清空搜索”按钮，将恢复显示所有媒体项。</li>
+                <li><strong>选择媒体：</strong>将鼠标悬停在媒体项上，右上角的复选框将出现。点击复选框或直接点击媒体项进行选择或取消选择。</li>
                 <li><strong>批量操作：</strong>使用“全选”按钮选择所有当前页的媒体，使用“取消全选”按钮取消选择。</li>
                 <li><strong>导出链接：</strong>选择多个媒体项后，点击“导出选中链接”按钮，选中的链接将自动复制到下面的“导出的链接”区域，您可以直接粘贴使用。</li>
                 <li><strong>分页控制：</strong>使用“上一页”和“下一页”按钮进行分页导航，或在“跳转到页码”输入框中输入具体页码并按回车键进行跳转。</li>
-                <li><strong>调整显示数量：</strong>在“每页数量”输入框中设置每页显示的媒体数量，在“每行数量”输入框中设置每行显示的媒体数量。</li>
-                <li><strong>主题切换：</strong>点击顶部工具栏中的🌓按钮切换浅色和深色主题，适应不同的视觉需求。</li>
-                <li><strong>键盘快捷键：</strong>按左右箭头键进行分页导航，注意仅在不处于输入框或文本区域时有效。</li>
+                <li><strong>调整显示数量：</strong>在“每页数量”输入框中设置每页显示的记录数量，在“每行数量”输入框中设置每行显示的媒体项数量。</li>
+                <li><strong>主题切换：</strong>点击顶部工具栏中的🌓按钮切换浅色和深色主题，适应不同的视觉需求。系统将根据时间自动调整主题，您也可以手动切换。</li>
+                <li><strong>音频控制：</strong>对于视频和音频媒体，将鼠标悬停在媒体项上，底部的喇叭按钮（🔇/🔊）将出现。点击按钮可以切换媒体的静音状态。</li>
+                <li><strong>键盘快捷键：</strong>在非输入框和文本区域时，按左右箭头键可以快速切换到上一页或下一页。</li>
             </ul>
             <p>希望您使用愉快！若有任何问题或建议，欢迎反馈。</p>
         </div>
@@ -412,16 +457,16 @@ https://example.com/video1.mp4"></textarea>
     <script>
         (function() {
             // 定义变量
-            let images = [];
+            let originalImages = []; // 原始媒体链接
+            let images = []; // 当前展示的记录
             let currentPage = 1;
-            let pageSize = 8;
-            let lineSize = 4;
+            let pageSize = 2; // 每页显示的记录数
+            let lineSize = 4; // 每行显示的媒体项数
             let totalPages = 0;
             const selectedImages = new Set(); // 使用 Set 避免重复
 
             // DOM元素缓存
             const inputTextArea = document.getElementById("input");
-            const filterInput = document.getElementById("filterInput");
             const container = document.getElementById("container");
             const currentSpan = document.getElementById("current");
             const totalSpan = document.getElementById("total");
@@ -431,35 +476,50 @@ https://example.com/video1.mp4"></textarea>
             const outputTextArea = document.getElementById("output");
             const feedbackDiv = document.getElementById("feedback");
             const helpModal = document.getElementById("helpModal");
+            const searchModal = document.getElementById("searchModal");
+            const searchInput = document.getElementById("searchInput");
+            const searchModeRadios = document.getElementsByName("searchMode");
 
             // 加载媒体函数
             window.loadImages = function() {
                 const text = inputTextArea.value.replace(/\t/g, "\n");
                 const lines = text.split("\n").map(line => line.trim()).filter(line => line !== "");
-                images = lines;
+                originalImages = lines; // 保存原始媒体链接
+                groupImages(); // 分组媒体链接
                 currentPage = 1;
                 totalPages = Math.ceil(images.length / pageSize);
                 updatePagination();
                 renderImages();
-                showFeedback(`加载了 ${images.length} 个媒体链接。`);
+                showFeedback(`加载了 ${originalImages.length} 个媒体链接。`);
             };
+
+            // 按行列分组媒体链接
+            function groupImages() {
+                images = [];
+                for (let i = 0; i < originalImages.length; i += lineSize) {
+                    const group = originalImages.slice(i, i + lineSize);
+                    images.push(group);
+                }
+            }
 
             // 渲染媒体
             function renderImages() {
                 container.innerHTML = "";
 
                 if (images.length === 0) {
-                    container.innerHTML = "<p style='text-align:center;'>没有要显示的图片、视频或音频。</p>";
+                    container.innerHTML = "<p style='text-align:center;'>没有要显示的媒体。</p>";
                     return;
                 }
 
                 const startIndex = (currentPage - 1) * pageSize;
                 const endIndex = Math.min(currentPage * pageSize, images.length);
-                const currentImages = images.slice(startIndex, endIndex);
+                const currentRecords = images.slice(startIndex, endIndex);
 
-                currentImages.forEach((url) => {
-                    const mediaItem = createMediaItem(url);
-                    container.appendChild(mediaItem);
+                currentRecords.forEach((record, recordIndex) => {
+                    record.forEach((url, index) => {
+                        const mediaItem = createMediaItem(url);
+                        container.appendChild(mediaItem);
+                    });
                 });
 
                 // 更新按钮状态
@@ -593,6 +653,7 @@ https://example.com/video1.mp4"></textarea>
 
             // 设置每页数量
             const pageSizeInput = document.getElementById("pageSizeInput");
+            pageSizeInput.value = pageSize;
             pageSizeInput.addEventListener("change", (e) => {
                 const val = parseInt(e.target.value);
                 if (!isNaN(val) && val > 0) {
@@ -609,12 +670,18 @@ https://example.com/video1.mp4"></textarea>
 
             // 设置每行数量
             const lineSizeInput = document.getElementById("lineSizeInput");
+            lineSizeInput.value = lineSize;
             lineSizeInput.addEventListener("change", (e) => {
                 const val = parseInt(e.target.value);
                 if (!isNaN(val) && val > 0) {
                     lineSize = val;
-                    // 根据 lineSize 调整 CSS Grid 列数
+                    groupImages(); // 重新分组媒体链接
+                    totalPages = Math.ceil(images.length / pageSize);
+                    currentPage = Math.min(currentPage, totalPages);
+                    updatePagination();
+                    // 设置 grid-template-columns 根据 lineSize
                     container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
+                    renderImages();
                     showFeedback(`每行显示数量设置为 ${lineSize}。`);
                 } else {
                     showFeedback("请输入有效的每行数量（大于0）。", true);
@@ -656,7 +723,7 @@ https://example.com/video1.mp4"></textarea>
                 }
             };
 
-            // 导出选中的图片/视频链接
+            // 导出选中的媒体链接
             window.exportImages = function() {
                 if (selectedImages.size === 0) {
                     showFeedback("没有选择任何媒体链接。", true);
@@ -670,51 +737,145 @@ https://example.com/video1.mp4"></textarea>
                 showFeedback("已复制选中的链接到剪贴板！");
             };
 
-            // 筛选媒体
-            window.filterImages = function() {
-                const regexStr = filterInput.value.trim();
-                if (!regexStr) {
-                    showFeedback("请输入正则表达式进行筛选。", true);
-                    return;
-                }
-                try {
-                    const regex = new RegExp(regexStr, 'i');
-                    const filteredImages = images.filter(url => regex.test(url));
-                    if (filteredImages.length === 0) {
-                        showFeedback("筛选结果为空，没有匹配的媒体链接。", true);
-                    } else {
-                        images = filteredImages;
-                        currentPage = 1;
-                        totalPages = Math.ceil(images.length / pageSize);
-                        updatePagination();
-                        renderImages();
-                        showFeedback(`筛选后剩余 ${images.length} 个媒体链接。`);
-                    }
-                } catch (error) {
-                    showFeedback("无效的正则表达式，请检查后重试。", true);
-                }
+            // 批量选择所有当前页媒体
+            window.selectAll = function() {
+                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
+                checkboxes.forEach(cb => {
+                    cb.checked = true;
+                    selectedImages.add(cb.value);
+                });
+                updateExportButton();
+                showFeedback("所有媒体项已选中。");
             };
 
-            // 搜索媒体
-            window.searchMedia = function() {
-                const keyword = prompt("请输入要搜索的关键词：");
-                if (keyword === null) return; // 用户取消输入
-                const trimmedKeyword = keyword.trim().toLowerCase();
-                if (!trimmedKeyword) {
-                    showFeedback("请输入有效的关键词进行搜索。", true);
+            // 批量取消选择所有当前页媒体
+            window.deselectAll = function() {
+                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
+                checkboxes.forEach(cb => {
+                    cb.checked = false;
+                    selectedImages.delete(cb.value);
+                });
+                updateExportButton();
+                showFeedback("所有媒体项已取消选择。");
+            };
+
+            // 搜索功能
+            window.performSearch = function() {
+                const query = searchInput.value.trim();
+                if (query === "") {
+                    showFeedback("请输入关键词或正则表达式进行搜索。", true);
                     return;
                 }
-                const filteredImages = images.filter(url => url.toLowerCase().includes(trimmedKeyword));
-                if (filteredImages.length === 0) {
-                    showFeedback("搜索结果为空，没有匹配的媒体链接。", true);
-                } else {
-                    images = filteredImages;
+
+                let mode = 'keyword';
+                searchModeRadios.forEach(radio => {
+                    if (radio.checked) {
+                        mode = radio.value;
+                    }
+                });
+
+                if (mode === 'regex') {
+                    try {
+                        new RegExp(query); // 测试正则表达式是否有效
+                    } catch (e) {
+                        showFeedback("无效的正则表达式，请检查后重试。", true);
+                        return;
+                    }
+                }
+
+                // 过滤媒体项
+                let filtered = [];
+                if (mode === 'keyword') {
+                    filtered = originalImages.reduce((acc, url, index) => {
+                        const groupIndex = Math.floor(index / lineSize);
+                        if (!acc[groupIndex]) acc[groupIndex] = [];
+                        acc[groupIndex].push(url);
+                        return acc;
+                    }, []).filter(record => record.some(url => url.toLowerCase().includes(query.toLowerCase())));
+                } else if (mode === 'regex') {
+                    const regex = new RegExp(query, 'i');
+                    filtered = originalImages.reduce((acc, url, index) => {
+                        const groupIndex = Math.floor(index / lineSize);
+                        if (!acc[groupIndex]) acc[groupIndex] = [];
+                        acc[groupIndex].push(url);
+                        return acc;
+                    }, []).filter(record => record.some(url => regex.test(url)));
+                }
+
+                images = filtered;
+                currentPage = 1;
+                totalPages = Math.ceil(images.length / pageSize);
+                updatePagination();
+                renderImages();
+                closeSearch();
+                showFeedback(`搜索后剩余 ${images.length} 个记录。`);
+            };
+
+            // 清空搜索
+            window.clearSearch = function() {
+                if (confirm("确定要清空搜索条件并恢复所有媒体项吗？")) {
+                    groupImages(); // 重新分组全部媒体链接
                     currentPage = 1;
                     totalPages = Math.ceil(images.length / pageSize);
                     updatePagination();
+                    // 设置 grid-template-columns 根据 lineSize
+                    container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
                     renderImages();
-                    showFeedback(`搜索后剩余 ${images.length} 个媒体链接。`);
+                    closeSearch();
+                    showFeedback("已清空搜索条件，显示所有媒体项。");
                 }
+            };
+
+            // 打开搜索模态框
+            window.openSearch = function() {
+                searchModal.style.display = "block";
+                searchInput.focus();
+            };
+
+            // 关闭搜索模态框
+            window.closeSearch = function() {
+                searchModal.style.display = "none";
+                searchInput.value = "";
+            };
+
+            // 打开帮助模态框
+            window.openHelp = function() {
+                helpModal.style.display = "block";
+            };
+
+            // 关闭帮助模态框
+            window.closeHelp = function() {
+                helpModal.style.display = "none";
+            };
+
+            // 自动主题检测和应用
+            function applyAutomaticTheme() {
+                const savedTheme = localStorage.getItem("theme");
+                if (savedTheme) {
+                    document.body.classList.remove("light-theme", "dark-theme");
+                    document.body.classList.add(`${savedTheme}-theme`);
+                } else {
+                    const hour = new Date().getHours();
+                    if (hour >= 19 || hour < 6) {
+                        document.body.classList.add("dark-theme");
+                    } else {
+                        document.body.classList.add("light-theme");
+                    }
+                }
+            }
+
+            // 主题切换函数
+            window.toggleTheme = function() {
+                const body = document.body;
+                body.classList.toggle("dark-theme");
+                body.classList.toggle("light-theme");
+                // 保存用户选择到 localStorage
+                if (body.classList.contains("dark-theme")) {
+                    localStorage.setItem("theme", "dark");
+                } else {
+                    localStorage.setItem("theme", "light");
+                }
+                showFeedback("主题已切换。");
             };
 
             // 更新分页显示
@@ -769,82 +930,13 @@ https://example.com/video1.mp4"></textarea>
                 }, 3000);
             }
 
-            // 主题切换函数
-            window.toggleTheme = function() {
-                const body = document.body;
-                body.classList.toggle("dark-theme");
-                body.classList.toggle("light-theme");
-                // 保存用户选择到 localStorage
-                if (body.classList.contains("dark-theme")) {
-                    localStorage.setItem("theme", "dark");
-                } else {
-                    localStorage.setItem("theme", "light");
-                }
-                showFeedback("主题已切换。");
-            };
-
-            // 打开帮助模态框
-            window.openHelp = function() {
-                helpModal.style.display = "block";
-            };
-
-            // 关闭帮助模态框
-            window.closeHelp = function() {
-                helpModal.style.display = "none";
-            };
-
-            // 点击模态框外侧关闭
-            window.onclick = function(event) {
-                if (event.target == helpModal) {
-                    helpModal.style.display = "none";
-                }
-            };
-
-            // 批量选择所有当前页媒体
-            window.selectAll = function() {
-                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
-                checkboxes.forEach(cb => {
-                    cb.checked = true;
-                    selectedImages.add(cb.value);
-                });
-                updateExportButton();
-                showFeedback("所有媒体项已选中。");
-            };
-
-            // 批量取消选择所有当前页媒体
-            window.deselectAll = function() {
-                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
-                checkboxes.forEach(cb => {
-                    cb.checked = false;
-                    selectedImages.delete(cb.value);
-                });
-                updateExportButton();
-                showFeedback("所有媒体项已取消选择。");
-            };
-
-            // 自动主题检测和应用
-            function applyAutomaticTheme() {
-                const savedTheme = localStorage.getItem("theme");
-                if (savedTheme) {
-                    document.body.classList.remove("light-theme", "dark-theme");
-                    document.body.classList.add(`${savedTheme}-theme`);
-                } else {
-                    const hour = new Date().getHours();
-                    if (hour >= 19 || hour < 6) {
-                        document.body.classList.add("dark-theme");
-                    } else {
-                        document.body.classList.add("light-theme");
-                    }
-                }
-            }
-
             // 初始化页面
             document.addEventListener("DOMContentLoaded", () => {
                 // 自动主题检测和应用
                 applyAutomaticTheme();
 
-                // 默认设置 grid-template-columns 为自动填充，用户可以通过 lineSize 调整
-                container.style.gridTemplateColumns = `repeat(auto-fill, minmax(200px, 1fr))`;
+                // 设置 grid-template-columns 根据 lineSize
+                container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
             });
 
             // 键盘快捷键
@@ -858,6 +950,7 @@ https://example.com/video1.mp4"></textarea>
                     nextPage();
                 }
             });
+
         })();
     </script>
 </body>
