@@ -2,29 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>图片和视频展示与选择</title>
+    <title>多媒体展示与选择工具</title>
     <style>
+        /* CSS变量用于主题切换 */
+        :root {
+            /* 浅色主题变量 */
+            --background-color: #f4f4f4;
+            --toolbar-background: #fff;
+            --text-color: #333;
+            --button-background: #007BFF;
+            --button-hover: #0056b3;
+            --button-disabled: #cccccc;
+            --media-background: #fff;
+            --checkbox-background: rgba(255, 255, 255, 0.8);
+            --feedback-color: green;
+            --modal-background: #fff;
+            --modal-text-color: #333;
+        }
+
+        /* 深色主题变量 */
+        .dark-theme {
+            --background-color: #2c2c2c;
+            --toolbar-background: #333;
+            --text-color: #f4f4f4;
+            --button-background: #1a73e8;
+            --button-hover: #135ab4;
+            --button-disabled: #555555;
+            --media-background: #444;
+            --checkbox-background: rgba(50, 50, 50, 0.8);
+            --feedback-color: #4caf50;
+            --modal-background: #555;
+            --modal-text-color: #f4f4f4;
+        }
+
         /* 基础样式 */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            background-color: var(--background-color);
             margin: 0;
             padding: 0;
-            color: #333;
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
+
         h1 {
             text-align: center;
             margin: 20px 0;
         }
+
         /* 顶部工具栏样式 */
         .toolbar {
-            background-color: #fff;
+            background-color: var(--toolbar-background);
             padding: 10px 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
+            transition: background-color 0.3s;
         }
+
         .toolbar .controls {
             display: flex;
             flex-wrap: wrap;
@@ -32,10 +68,12 @@
             align-items: center;
             justify-content: center;
         }
+
         .toolbar label {
             margin-right: 5px;
             font-weight: bold;
         }
+
         .toolbar input[type="text"],
         .toolbar input[type="number"],
         .toolbar textarea {
@@ -45,28 +83,50 @@
             width: 200px;
             max-width: 100%;
             box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
         }
+
+        /* 浅色和深色主题输入框样式 */
+        body.light-theme input[type="text"],
+        body.light-theme input[type="number"],
+        body.light-theme textarea {
+            background-color: #fff;
+            color: #333;
+        }
+
+        body.dark-theme input[type="text"],
+        body.dark-theme input[type="number"],
+        body.dark-theme textarea {
+            background-color: #555;
+            color: #f4f4f4;
+            border: 1px solid #666;
+        }
+
         .toolbar textarea {
             resize: vertical;
             height: 60px;
         }
+
         .toolbar button {
             padding: 7px 12px;
             border: none;
             border-radius: 4px;
-            background-color: #007BFF;
+            background-color: var(--button-background);
             color: white;
             cursor: pointer;
             transition: background-color 0.3s;
             font-size: 14px;
         }
+
         .toolbar button:hover {
-            background-color: #0056b3;
+            background-color: var(--button-hover);
         }
+
         .toolbar button:disabled {
-            background-color: #cccccc;
+            background-color: var(--button-disabled);
             cursor: not-allowed;
         }
+
         /* 内容容器样式 */
         #container {
             display: grid;
@@ -74,22 +134,25 @@
             gap: 20px;
             padding: 20px;
         }
+
         .media-item {
             position: relative;
-            background-color: white;
+            background-color: var(--media-background);
             border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             display: flex;
             flex-direction: column;
             height: 100%; /* 使媒体项高度一致 */
         }
+
         .media-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
+
         /* 媒体元素样式 */
         .media-content {
             width: 100%;
@@ -98,12 +161,14 @@
             flex-grow: 1;
             object-fit: cover; /* 确保媒体内容填满容器且保持比例 */
         }
+
         .text-content {
             padding: 10px;
             white-space: pre-wrap;
             word-break: break-word;
             flex-grow: 1;
         }
+
         /* 喇叭按钮样式 */
         .audio-button {
             position: absolute;
@@ -124,30 +189,43 @@
             height: 30px;
             font-size: 16px;
         }
+
         .video-container:hover .audio-button {
             opacity: 1; /* 鼠标悬停时显示按钮 */
         }
+
         /* 复选框容器样式 */
         .checkbox-container {
             position: absolute;
             top: 10px;
             right: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: var(--checkbox-background);
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 2px;
+            opacity: 0; /* 默认隐藏 */
+            transition: opacity 0.3s;
+            pointer-events: none; /* 默认不响应事件 */
         }
+
+        .media-item:hover .checkbox-container {
+            opacity: 1; /* 鼠标悬停时显示复选框 */
+            pointer-events: auto; /* 允许响应事件 */
+        }
+
         .checkbox-container input[type="checkbox"] {
             transform: scale(1.2);
             cursor: pointer;
         }
+
         /* 反馈消息样式 */
         #feedback {
             text-align: center;
             margin: 10px 0;
-            color: green;
+            color: var(--feedback-color);
             font-weight: bold;
         }
+
         /* 导出区域样式 */
         #output {
             width: calc(100% - 40px);
@@ -159,6 +237,7 @@
             box-sizing: border-box;
             height: 100px;
         }
+
         /* 响应式调整 */
         @media (max-width: 800px) {
             .toolbar .controls {
@@ -174,10 +253,88 @@
                 width: calc(100% - 40px);
             }
         }
+
+        /* 主题切换按钮样式 */
+        .theme-toggle {
+            margin-left: 10px;
+            background-color: transparent;
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            color: var(--button-hover);
+        }
+
+        /* 帮助按钮样式 */
+        .help-button {
+            margin-left: 10px;
+            background-color: transparent;
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+
+        .help-button:hover {
+            color: var(--button-hover);
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 2000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: var(--modal-background);
+            margin: 10% auto; /* 10% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            border-radius: 8px;
+            color: var(--modal-text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* 批量操作按钮样式 */
+        .batch-buttons {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .batch-buttons button {
+            margin: 0 5px;
+        }
     </style>
 </head>
-<body>
-    <h1>图片和视频展示与选择</h1>
+<body class="light-theme">
+    <h1>多媒体展示与选择工具</h1>
     <!-- 顶部工具栏 -->
     <div class="toolbar">
         <div class="controls">
@@ -190,7 +347,7 @@ https://example.com/video1.mp4"></textarea>
             <div>
                 <label for="filterInput">筛选（正则）：</label><br>
                 <input type="text" id="filterInput" placeholder="例如：\.jpg$">
-                <button onclick="filterImages()">筛选图片</button>
+                <button onclick="filterImages()">筛选媒体</button>
             </div>
             <div>
                 <button onclick="loadImages()">加载媒体</button>
@@ -210,7 +367,16 @@ https://example.com/video1.mp4"></textarea>
                 <label for="goToPageInput">跳转到页码：</label><br>
                 <input type="text" id="goToPageInput" placeholder="例如：2">
             </div>
+            <!-- 主题切换按钮 -->
+            <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+            <!-- 帮助按钮 -->
+            <button class="help-button" onclick="openHelp()" title="帮助">❓</button>
         </div>
+    </div>
+    <!-- 批量操作按钮 -->
+    <div class="batch-buttons">
+        <button onclick="selectAll()">全选</button>
+        <button onclick="deselectAll()">取消全选</button>
     </div>
     <!-- 当前页数显示 -->
     <p style="text-align:center;">当前第<span id="current">0</span>页，共<span id="total">0</span>页</p>
@@ -221,6 +387,27 @@ https://example.com/video1.mp4"></textarea>
     <textarea id="output" readonly></textarea>
     <!-- 反馈消息 -->
     <div id="feedback"></div>
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeHelp()">&times;</span>
+            <h2>使用指南</h2>
+            <p>欢迎使用多媒体展示与选择工具。以下是各功能的使用说明：</p>
+            <ul>
+                <li><strong>加载媒体：</strong>将媒体链接粘贴到“媒体链接”文本框中，每行一个链接，然后点击“加载媒体”按钮。</li>
+                <li><strong>筛选媒体：</strong>在“筛选（正则）”输入框中输入正则表达式，如 <code>\.jpg$</code>，点击“筛选媒体”按钮仅显示匹配的媒体。</li>
+                <li><strong>搜索媒体：</strong>在“搜索关键词”输入框中输入关键词，如 <code>cat</code>，点击“搜索”按钮，实时过滤显示包含关键词的媒体。</li>
+                <li><strong>选择媒体：</strong>将鼠标悬停在媒体项上，复选框将出现。点击复选框或直接点击媒体项进行选择或取消选择。</li>
+                <li><strong>批量操作：</strong>使用“全选”按钮选择所有当前页的媒体，使用“取消全选”按钮取消选择。</li>
+                <li><strong>导出链接：</strong>选择多个媒体项后，点击“导出选中链接”按钮，选中的链接将自动复制到下面的“导出的链接”区域，您可以直接粘贴使用。</li>
+                <li><strong>分页控制：</strong>使用“上一页”和“下一页”按钮进行分页导航，或在“跳转到页码”输入框中输入具体页码并按回车键进行跳转。</li>
+                <li><strong>调整显示数量：</strong>在“每页数量”输入框中设置每页显示的媒体数量，在“每行数量”输入框中设置每行显示的媒体数量。</li>
+                <li><strong>主题切换：</strong>点击顶部工具栏中的🌓按钮切换浅色和深色主题，适应不同的视觉需求。</li>
+                <li><strong>键盘快捷键：</strong>按左右箭头键进行分页导航，注意仅在不处于输入框或文本区域时有效。</li>
+            </ul>
+            <p>希望您使用愉快！若有任何问题或建议，欢迎反馈。</p>
+        </div>
+    </div>
 
     <script>
         (function() {
@@ -243,6 +430,7 @@ https://example.com/video1.mp4"></textarea>
             const exportButton = document.getElementById("exportButton");
             const outputTextArea = document.getElementById("output");
             const feedbackDiv = document.getElementById("feedback");
+            const helpModal = document.getElementById("helpModal");
 
             // 加载媒体函数
             window.loadImages = function() {
@@ -261,7 +449,7 @@ https://example.com/video1.mp4"></textarea>
                 container.innerHTML = "";
 
                 if (images.length === 0) {
-                    container.innerHTML = "<p style='text-align:center;'>没有要显示的图片或视频。</p>";
+                    container.innerHTML = "<p style='text-align:center;'>没有要显示的图片、视频或音频。</p>";
                     return;
                 }
 
@@ -310,6 +498,8 @@ https://example.com/video1.mp4"></textarea>
                     mediaElement = videoContainer;
                 } else if (isImage(url)) {
                     mediaElement = createImage(url);
+                } else if (isAudio(url)) {
+                    mediaElement = createAudio(url);
                 } else {
                     mediaElement = createTextContent(url);
                 }
@@ -373,6 +563,16 @@ https://example.com/video1.mp4"></textarea>
                 img.className = "media-content";
                 img.alt = "图片内容";
                 return img;
+            }
+
+            // 创建音频元素
+            function createAudio(src) {
+                const audio = document.createElement("audio");
+                audio.src = src;
+                audio.controls = true;
+                audio.className = "media-content";
+                audio.setAttribute("aria-label", "音频内容");
+                return audio;
             }
 
             // 创建音频按钮
@@ -464,13 +664,13 @@ https://example.com/video1.mp4"></textarea>
                 }
                 const exported = Array.from(selectedImages).join("\n");
                 outputTextArea.value = exported;
-                // 自动选择并复制（可选）
+                // 自动选择并复制
                 outputTextArea.select();
                 document.execCommand("copy");
                 showFeedback("已复制选中的链接到剪贴板！");
             };
 
-            // 筛选图片
+            // 筛选媒体
             window.filterImages = function() {
                 const regexStr = filterInput.value.trim();
                 if (!regexStr) {
@@ -492,6 +692,28 @@ https://example.com/video1.mp4"></textarea>
                     }
                 } catch (error) {
                     showFeedback("无效的正则表达式，请检查后重试。", true);
+                }
+            };
+
+            // 搜索媒体
+            window.searchMedia = function() {
+                const keyword = prompt("请输入要搜索的关键词：");
+                if (keyword === null) return; // 用户取消输入
+                const trimmedKeyword = keyword.trim().toLowerCase();
+                if (!trimmedKeyword) {
+                    showFeedback("请输入有效的关键词进行搜索。", true);
+                    return;
+                }
+                const filteredImages = images.filter(url => url.toLowerCase().includes(trimmedKeyword));
+                if (filteredImages.length === 0) {
+                    showFeedback("搜索结果为空，没有匹配的媒体链接。", true);
+                } else {
+                    images = filteredImages;
+                    currentPage = 1;
+                    totalPages = Math.ceil(images.length / pageSize);
+                    updatePagination();
+                    renderImages();
+                    showFeedback(`搜索后剩余 ${images.length} 个媒体链接。`);
                 }
             };
 
@@ -528,6 +750,11 @@ https://example.com/video1.mp4"></textarea>
                 return /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
             }
 
+            // 检查是否为音频文件
+            function isAudio(url) {
+                return /\.(mp3|wav|aac)(\?.*)?$/i.test(url);
+            }
+
             // 检查是否为图片文件
             function isImage(url) {
                 return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(url);
@@ -536,14 +763,81 @@ https://example.com/video1.mp4"></textarea>
             // 显示反馈消息
             function showFeedback(message, isError = false) {
                 feedbackDiv.textContent = message;
-                feedbackDiv.style.color = isError ? 'red' : 'green';
+                feedbackDiv.style.color = isError ? 'red' : 'var(--feedback-color)';
                 setTimeout(() => {
                     feedbackDiv.textContent = '';
                 }, 3000);
             }
 
+            // 主题切换函数
+            window.toggleTheme = function() {
+                const body = document.body;
+                body.classList.toggle("dark-theme");
+                body.classList.toggle("light-theme");
+                // 保存用户选择到 localStorage
+                if (body.classList.contains("dark-theme")) {
+                    localStorage.setItem("theme", "dark");
+                } else {
+                    localStorage.setItem("theme", "light");
+                }
+                showFeedback("主题已切换。");
+            };
+
+            // 打开帮助模态框
+            window.openHelp = function() {
+                helpModal.style.display = "block";
+            };
+
+            // 关闭帮助模态框
+            window.closeHelp = function() {
+                helpModal.style.display = "none";
+            };
+
+            // 点击模态框外侧关闭
+            window.onclick = function(event) {
+                if (event.target == helpModal) {
+                    helpModal.style.display = "none";
+                }
+            };
+
+            // 批量选择所有当前页媒体
+            window.selectAll = function() {
+                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
+                checkboxes.forEach(cb => {
+                    cb.checked = true;
+                    selectedImages.add(cb.value);
+                });
+                updateExportButton();
+                showFeedback("所有媒体项已选中。");
+            };
+
+            // 批量取消选择所有当前页媒体
+            window.deselectAll = function() {
+                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
+                checkboxes.forEach(cb => {
+                    cb.checked = false;
+                    selectedImages.delete(cb.value);
+                });
+                updateExportButton();
+                showFeedback("所有媒体项已取消选择。");
+            };
+
+            // 自动主题检测和应用
+            function applyAutomaticTheme() {
+                const savedTheme = localStorage.getItem("theme");
+                const hour = new Date().getHours();
+                if (hour >= 19 || hour < 6) {
+                    document.body.classList.add("dark-theme");
+                } else {
+                    document.body.classList.add("light-theme");
+                }
+            }
+
             // 初始化页面
             document.addEventListener("DOMContentLoaded", () => {
+                // 自动主题检测和应用
+                applyAutomaticTheme();
+
                 // 默认设置 grid-template-columns 为自动填充，用户可以通过 lineSize 调整
                 container.style.gridTemplateColumns = `repeat(auto-fill, minmax(200px, 1fr))`;
             });
