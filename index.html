@@ -160,7 +160,7 @@
             transform: translateY(-5px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             max-width: 100%; /* 确保媒体内容不超过容器宽度 */
-            /* max-height: 500px; /* 设置媒体内容的最大高度，防止过高 */
+            /*max-height: 500px; /* 设置媒体内容的最大高度，防止过高 */
         }
 
         /* 媒体元素样式 */
@@ -221,6 +221,11 @@
         .media-item:hover .checkbox-container {
             opacity: 1; /* 鼠标悬停时显示复选框 */
             pointer-events: auto; /* 允许响应事件 */
+        }
+
+        .media-item.selected .checkbox-container {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .checkbox-container input[type="checkbox"] {
