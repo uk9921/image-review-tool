@@ -445,7 +445,7 @@ https://example.com/audio1.mp3"></textarea>
                 <li><strong>批量操作：</strong>使用“全选”按钮选择所有当前页的媒体，使用“取消全选”按钮取消选择。</li>
                 <li><strong>导出链接：</strong>选择多个媒体项后，点击“导出选中链接”按钮，选中的链接将自动复制到下面的“导出的链接”区域，您可以直接粘贴使用。</li>
                 <li><strong>分页控制：</strong>使用“上一页”和“下一页”按钮进行分页导航，或在“跳转到页码”输入框中输入具体页码并按回车键进行跳转。</li>
-                <li><strong>调整显示数量：</strong>在“每页数量”输入框中设置每页显示的记录数量，在“每行数量”输入框中设置每行显示的媒体项数量。</li>
+                <li><strong>调整显示数量：</strong>在“每页行数”输入框中设置每页显示的记录数量，在“每行数量”输入框中设置每行显示的媒体项数量。</li>
                 <li><strong>主题切换：</strong>点击顶部工具栏中的🌓按钮切换浅色和深色主题，适应不同的视觉需求。系统将根据时间自动调整主题，您也可以手动切换。</li>
                 <li><strong>音频控制：</strong>对于视频和音频媒体，将鼠标悬停在媒体项上，底部的喇叭按钮（🔇/🔊）将出现。点击按钮可以切换媒体的静音状态。</li>
                 <li><strong>键盘快捷键：</strong>在非输入框和文本区域时，按左右箭头键可以快速切换到上一页或下一页。</li>
@@ -651,7 +651,7 @@ https://example.com/audio1.mp3"></textarea>
                 return button;
             }
 
-            // 设置每页数量
+            // 设置每页行数
             const pageSizeInput = document.getElementById("pageSizeInput");
             pageSizeInput.value = pageSize;
             pageSizeInput.addEventListener("change", (e) => {
@@ -664,7 +664,7 @@ https://example.com/audio1.mp3"></textarea>
                     renderImages();
                     showFeedback(`每页显示数量设置为 ${pageSize}。`);
                 } else {
-                    showFeedback("请输入有效的每页数量（大于0）。", true);
+                    showFeedback("请输入有效的每页行数（大于0）。", true);
                 }
             });
 
