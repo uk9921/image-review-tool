@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <title>多媒体展示与选择工具</title>
@@ -21,7 +21,6 @@
             --search-modal-background: #fff;
             --search-modal-text-color: #333;
         }
-
         /* 深色主题变量 */
         .dark-theme {
             --background-color: #2c2c2c;
@@ -38,7 +37,6 @@
             --search-modal-background: #555;
             --search-modal-text-color: #f4f4f4;
         }
-
         /* 基础样式 */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -48,12 +46,10 @@
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
         }
-
         h1 {
             text-align: center;
             margin: 20px 0;
         }
-
         /* 顶部工具栏样式 */
         .toolbar {
             background-color: var(--toolbar-background);
@@ -64,7 +60,6 @@
             z-index: 1000;
             transition: background-color 0.3s;
         }
-
         .toolbar .controls {
             display: flex;
             flex-wrap: wrap;
@@ -72,12 +67,10 @@
             align-items: center;
             justify-content: center;
         }
-
         .toolbar label {
             margin-right: 5px;
             font-weight: bold;
         }
-
         .toolbar input[type="text"],
         .toolbar input[type="number"],
         .toolbar textarea {
@@ -89,7 +82,6 @@
             box-sizing: border-box;
             transition: background-color 0.3s, color 0.3s;
         }
-
         /* 浅色和深色主题输入框样式 */
         body.light-theme input[type="text"],
         body.light-theme input[type="number"],
@@ -97,7 +89,6 @@
             background-color: #fff;
             color: #333;
         }
-
         body.dark-theme input[type="text"],
         body.dark-theme input[type="number"],
         body.dark-theme textarea {
@@ -105,12 +96,10 @@
             color: #f4f4f4;
             border: 1px solid #666;
         }
-
         .toolbar textarea {
             resize: vertical;
             height: 60px;
         }
-
         .toolbar button {
             padding: 7px 12px;
             border: none;
@@ -121,26 +110,22 @@
             transition: background-color 0.3s;
             font-size: 14px;
         }
-
         .toolbar button:hover {
             background-color: var(--button-hover);
         }
-
         .toolbar button:disabled {
             background-color: var(--button-disabled);
             cursor: not-allowed;
         }
-
         /* 内容容器样式 */
         #container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 默认响应式 */
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
             padding: 20px;
-            justify-items: center; /* 保持网格项居中对齐 */
-            justify-content: center; /* 居中整个网格 */
+            justify-items: center;
+            justify-content: center;
         }
-
         .media-item {
             position: relative;
             background-color: var(--media-background);
@@ -151,34 +136,49 @@
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             display: flex;
             flex-direction: column;
-            height: 100%; /* 使媒体项高度一致 */
-            max-width: 500px; /* 设置媒体项的最大宽度 */
-            width: auto; /* 改为 auto 以避免过度拉伸 */
+            height: 100%;
+            max-width: 500px;
+            width: auto;
         }
-
         .media-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            max-width: 100%; /* 确保媒体内容不超过容器宽度 */
-            /*max-height: 500px; /* 设置媒体内容的最大高度，防止过高 */
+            max-width: 100%;
         }
-
         /* 媒体元素样式 */
         .media-content {
             width: 100%;
             height: auto;
             display: block;
             flex-grow: 1;
-            object-fit: cover; /* 确保媒体内容填满容器且保持比例 */
+            object-fit: cover;
         }
-
         .text-content {
             padding: 10px;
             white-space: pre-wrap;
             word-break: break-word;
             flex-grow: 1;
+            font-family: Consolas, "Courier New", monospace;
+            background-color: #f6f8fa;
+            border-radius: 4px;
+            overflow-x: auto;
         }
-
+        /* JSON语法高亮样式 */
+        .json-key {
+            color: #c92c2c;
+        }
+        .json-string {
+            color: #22863a;
+        }
+        .json-number {
+            color: #005cc5;
+        }
+        .json-boolean {
+            color: #d73a49;
+        }
+        .json-null {
+            color: #6a737d;
+        }
         /* 喇叭按钮样式 */
         .audio-button {
             position: absolute;
@@ -194,16 +194,14 @@
             justify-content: center;
             opacity: 0;
             transition: opacity 0.3s, background-color 0.3s;
-            pointer-events: auto; /* 确保按钮可点击 */
+            pointer-events: auto;
             width: 30px;
             height: 30px;
             font-size: 16px;
         }
-
         .video-container:hover .audio-button {
-            opacity: 1; /* 鼠标悬停时显示按钮 */
+            opacity: 1;
         }
-
         /* 复选框容器样式 */
         .checkbox-container {
             position: absolute;
@@ -213,26 +211,22 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 2px;
-            opacity: 0; /* 默认隐藏 */
+            opacity: 0;
             transition: opacity 0.3s;
-            pointer-events: none; /* 默认不响应事件 */
+            pointer-events: none;
         }
-
         .media-item:hover .checkbox-container {
-            opacity: 1; /* 鼠标悬停时显示复选框 */
-            pointer-events: auto; /* 允许响应事件 */
+            opacity: 1;
+            pointer-events: auto;
         }
-
         .media-item.selected .checkbox-container {
             opacity: 1;
             pointer-events: auto;
         }
-
         .checkbox-container input[type="checkbox"] {
             transform: scale(1.2);
             cursor: pointer;
         }
-
         /* 反馈消息样式 */
         #feedback {
             text-align: center;
@@ -240,7 +234,6 @@
             color: var(--feedback-color);
             font-weight: bold;
         }
-
         /* 导出区域样式 */
         #output {
             width: calc(100% - 40px);
@@ -252,7 +245,6 @@
             box-sizing: border-box;
             height: 100px;
         }
-
         /* 响应式调整 */
         @media (max-width: 800px) {
             .toolbar .controls {
@@ -268,7 +260,6 @@
                 width: calc(100% - 40px);
             }
         }
-
         /* 主题切换按钮样式 */
         .theme-toggle {
             margin-left: 10px;
@@ -279,11 +270,9 @@
             font-size: 18px;
             transition: color 0.3s;
         }
-
         .theme-toggle:hover {
             color: var(--button-hover);
         }
-
         /* 帮助按钮样式 */
         .help-button {
             margin-left: 10px;
@@ -294,35 +283,31 @@
             font-size: 18px;
             transition: color 0.3s;
         }
-
         .help-button:hover {
             color: var(--button-hover);
         }
-
         /* 模态框样式 */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 2000; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 2000;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
         }
-
         .modal-content {
             background-color: var(--modal-background);
-            margin: 10% auto; /* 10% from the top and centered */
+            margin: 10% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
+            width: 80%;
             border-radius: 8px;
             color: var(--modal-text-color);
             transition: background-color 0.3s, color 0.3s;
         }
-
         .close-button {
             color: #aaa;
             float: right;
@@ -330,23 +315,19 @@
             font-weight: bold;
             cursor: pointer;
         }
-
         .close-button:hover,
         .close-button:focus {
             color: black;
             text-decoration: none;
         }
-
         /* 批量操作按钮样式 */
         .batch-buttons {
             margin: 10px 0;
             text-align: center;
         }
-
         .batch-buttons button {
             margin: 0 5px;
         }
-
         /* 放大镜搜索图标样式 */
         .search-icon {
             background-color: transparent;
@@ -357,22 +338,18 @@
             transition: color 0.3s;
             margin-left: 10px;
         }
-
         .search-icon:hover {
             color: var(--button-hover);
         }
-
         /* 搜索模态框样式 */
         #searchModal .modal-content {
             background-color: var(--search-modal-background);
             color: var(--search-modal-text-color);
         }
-
         /* 搜索模式切换样式 */
         .search-mode {
             margin-top: 10px;
         }
-
         .search-mode label {
             margin-right: 10px;
         }
@@ -388,7 +365,8 @@
                 <textarea id="input" placeholder="每行一个链接，例如：
 https://example.com/image1.jpg
 https://example.com/video1.mp4
-https://example.com/audio1.mp3"></textarea>
+https://example.com/audio1.mp3
+https://example.com/data1.json"></textarea>
             </div>
             <div>
                 <button onclick="loadImages()">加载媒体</button>
@@ -464,7 +442,6 @@ https://example.com/audio1.mp3"></textarea>
             <p>希望您使用愉快！若有任何问题或建议，欢迎反馈。</p>
         </div>
     </div>
-
     <script>
         (function() {
             // 定义变量
@@ -491,6 +468,29 @@ https://example.com/audio1.mp3"></textarea>
             const searchInput = document.getElementById("searchInput");
             const searchModeRadios = document.getElementsByName("searchMode");
 
+            // 语法高亮函数
+            function syntaxHighlight(json) {
+                if (typeof json !== 'string') {
+                    json = JSON.stringify(json, undefined, 2);
+                }
+                json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?=\s*:))|("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*")|(\b(true|false|null)\b)|(\b\d+\b)/g, function (match) {
+                    let cls = 'json-number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'json-key';
+                        } else {
+                            cls = 'json-string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'json-boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'json-null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            }
+
             // 加载媒体函数
             window.loadImages = function() {
                 const text = inputTextArea.value.replace(/\t/g, "\n");
@@ -516,23 +516,19 @@ https://example.com/audio1.mp3"></textarea>
             // 渲染媒体
             function renderImages() {
                 container.innerHTML = "";
-
                 if (images.length === 0) {
                     container.innerHTML = "<p style='text-align:center;'>没有要显示的媒体。</p>";
                     return;
                 }
-
                 const startIndex = (currentPage - 1) * pageSize;
                 const endIndex = Math.min(currentPage * pageSize, images.length);
                 const currentRecords = images.slice(startIndex, endIndex);
-
                 currentRecords.forEach((record, recordIndex) => {
                     record.forEach((url, index) => {
                         const mediaItem = createMediaItem(url);
                         container.appendChild(mediaItem);
                     });
                 });
-
                 // 更新按钮状态
                 prevButton.disabled = currentPage === 1;
                 nextButton.disabled = currentPage === totalPages;
@@ -543,17 +539,19 @@ https://example.com/audio1.mp3"></textarea>
             function createMediaItem(url) {
                 const div = document.createElement("div");
                 div.className = "media-item";
-
                 let mediaElement;
                 let audioButton = null;
-
                 if (isJsonString(url)) {
-                    mediaElement = createTextContent(JSON.parse(url));
+                    try {
+                        const jsonObj = JSON.stringify(JSON.parse(url), null, 2) + '\n\n'; // 格式化JSON并换行
+                        mediaElement = createTextContent(jsonObj);
+                    } catch (e) {
+                        mediaElement = createTextContent(url); // 如果JSON解析失败，则显示原文本
+                    }
                 } else if (isVideo(url)) {
                     const videoContainer = document.createElement("div");
                     videoContainer.className = "video-container";
                     videoContainer.style.position = "relative"; // 确保相对定位
-
                     const video = document.createElement("video");
                     video.src = url;
                     video.autoplay = true;
@@ -561,7 +559,6 @@ https://example.com/audio1.mp3"></textarea>
                     video.loop = true;
                     video.className = "media-content";
                     video.setAttribute("aria-label", "Video content");
-
                     // 创建喇叭按钮
                     audioButton = createAudioButton(video);
                     videoContainer.appendChild(video);
@@ -578,18 +575,15 @@ https://example.com/audio1.mp3"></textarea>
                 // 复选框容器
                 const checkboxContainer = document.createElement("div");
                 checkboxContainer.className = "checkbox-container";
-
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
                 checkbox.value = url;
                 checkbox.setAttribute("aria-label", "选择媒体");
-
                 // 初始化复选框状态
                 if (selectedImages.has(url)) {
                     checkbox.checked = true;
                     div.classList.add("selected");
                 }
-
                 // 复选框事件处理
                 checkbox.addEventListener("click", (e) => {
                     e.stopPropagation();
@@ -602,11 +596,9 @@ https://example.com/audio1.mp3"></textarea>
                     }
                     updateExportButton();
                 });
-
                 checkboxContainer.appendChild(checkbox);
                 div.appendChild(mediaElement);
                 div.appendChild(checkboxContainer);
-
                 // 媒体元素点击事件，切换复选框
                 mediaElement.addEventListener("click", () => {
                     checkbox.checked = !checkbox.checked;
@@ -619,15 +611,23 @@ https://example.com/audio1.mp3"></textarea>
                     }
                     updateExportButton();
                 });
-
                 return div;
             }
 
-            // 创建文本内容
+            // 创建文本内容（支持JSON语法高亮）
             function createTextContent(text) {
                 const textDiv = document.createElement("div");
                 textDiv.className = "text-content";
-                textDiv.textContent = text;
+                if (isJsonString(text)) {
+                    try {
+                        const jsonObj = JSON.parse(text);
+                        textDiv.innerHTML = syntaxHighlight(jsonObj);
+                    } catch (e) {
+                        textDiv.textContent = text; // 如果JSON解析失败，则显示原文本
+                    }
+                } else {
+                    textDiv.textContent = text;
+                }
                 textDiv.setAttribute("aria-label", "文本内容");
                 return textDiv;
             }
@@ -657,13 +657,11 @@ https://example.com/audio1.mp3"></textarea>
                 button.className = "audio-button";
                 button.innerHTML = "🔇";
                 button.setAttribute("aria-label", "切换声音");
-
                 button.addEventListener("click", (e) => {
                     e.stopPropagation();
                     video.muted = !video.muted;
                     button.innerHTML = video.muted ? "🔇" : "🔊";
                 });
-
                 return button;
             }
 
@@ -691,7 +689,7 @@ https://example.com/audio1.mp3"></textarea>
                 const val = parseInt(e.target.value);
                 if (!isNaN(val) && val > 0) {
                     lineSize = val;
-                    groupImages(originalImages); // 重新分组媒体链接
+                    groupImages(); // 重新分组媒体链接
                     totalPages = Math.ceil(images.length / pageSize);
                     currentPage = Math.min(currentPage, totalPages);
                     updatePagination();
@@ -786,14 +784,12 @@ https://example.com/audio1.mp3"></textarea>
                     showFeedback("请输入关键词或正则表达式进行搜索。", true);
                     return;
                 }
-
                 let mode = 'keyword';
                 searchModeRadios.forEach(radio => {
                     if (radio.checked) {
                         mode = radio.value;
                     }
                 });
-
                 if (mode === 'regex') {
                     try {
                         new RegExp(query); // 测试正则表达式是否有效
@@ -802,7 +798,6 @@ https://example.com/audio1.mp3"></textarea>
                         return;
                     }
                 }
-
                 // 过滤媒体项
                 let filtered = [];
                 if (mode === 'keyword') {
@@ -821,7 +816,6 @@ https://example.com/audio1.mp3"></textarea>
                         return acc;
                     }, []).filter(record => record.some(url => regex.test(url)));
                 }
-
                 images = filtered;
                 currentPage = 1;
                 totalPages = Math.ceil(images.length / pageSize);
@@ -954,7 +948,6 @@ https://example.com/audio1.mp3"></textarea>
             document.addEventListener("DOMContentLoaded", () => {
                 // 自动主题检测和应用
                 applyAutomaticTheme();
-
                 // 设置 grid-template-columns 根据 lineSize
                 container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
             });
@@ -970,7 +963,6 @@ https://example.com/audio1.mp3"></textarea>
                     nextPage();
                 }
             });
-
         })();
     </script>
 </body>
