@@ -120,11 +120,11 @@
         /* 内容容器样式 */
         #container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 默认响应式 */
             gap: 20px;
             padding: 20px;
-            justify-items: center;
-            justify-content: center;
+            justify-items: center; /* 保持网格项居中对齐 */
+            justify-content: center; /* 居中整个网格 */
         }
         .media-item {
             position: relative;
@@ -136,14 +136,15 @@
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             display: flex;
             flex-direction: column;
-            height: 100%;
-            max-width: 500px;
-            width: auto;
+            height: 100%; /* 使媒体项高度一致 */
+            max-width: 500px; /* 设置媒体项的最大宽度 */
+            width: auto; /* 改为 auto 以避免过度拉伸 */
         }
         .media-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            max-width: 100%;
+            max-width: 100%; /* 确保媒体内容不超过容器宽度 */
+            /*max-height: 500px; /* 设置媒体内容的最大高度，防止过高 */
         }
         /* 媒体元素样式 */
         .media-content {
@@ -151,7 +152,7 @@
             height: auto;
             display: block;
             flex-grow: 1;
-            object-fit: cover;
+            object-fit: cover; /* 确保媒体内容填满容器且保持比例 */
         }
         .text-content {
             padding: 10px;
@@ -159,7 +160,7 @@
             word-break: break-word;
             flex-grow: 1;
             font-family: Consolas, "Courier New", monospace;
-            background-color: #f6f8fa;
+            /* background-color: #f6f8fa; */
             border-radius: 4px;
             overflow-x: auto;
         }
@@ -194,13 +195,13 @@
             justify-content: center;
             opacity: 0;
             transition: opacity 0.3s, background-color 0.3s;
-            pointer-events: auto;
+            pointer-events: auto; /* 确保按钮可点击 */
             width: 30px;
             height: 30px;
             font-size: 16px;
         }
         .video-container:hover .audio-button {
-            opacity: 1;
+            opacity: 1; /* 鼠标悬停时显示按钮 */
         }
         /* 复选框容器样式 */
         .checkbox-container {
@@ -211,13 +212,13 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 2px;
-            opacity: 0;
+            opacity: 0; /* 默认隐藏 */
             transition: opacity 0.3s;
-            pointer-events: none;
+            pointer-events: none; /* 默认不响应事件 */
         }
         .media-item:hover .checkbox-container {
-            opacity: 1;
-            pointer-events: auto;
+            opacity: 1; /* 鼠标悬停时显示复选框 */
+            pointer-events: auto; /* 允许响应事件 */
         }
         .media-item.selected .checkbox-container {
             opacity: 1;
@@ -288,22 +289,22 @@
         }
         /* 模态框样式 */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 2000; /* Sit on top */
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
         }
         .modal-content {
             background-color: var(--modal-background);
-            margin: 10% auto;
+            margin: 10% auto; /* 10% from the top and centered */
             padding: 20px;
             border: 1px solid #888;
-            width: 80%;
+            width: 80%; /* Could be more or less, depending on screen size */
             border-radius: 8px;
             color: var(--modal-text-color);
             transition: background-color 0.3s, color 0.3s;
