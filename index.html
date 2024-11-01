@@ -932,7 +932,7 @@ https://example.com/data1.json"></textarea>
 
             // 检查是否为图片文件
             function isImage(url) {
-                return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(url);
+                return /\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i.test(url);
             }
 
             // 显示反馈消息
