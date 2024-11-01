@@ -123,6 +123,7 @@
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 默认响应式 */
             gap: 20px;
             padding: 20px;
+            justify-items: stretch; /* 修改此行以确保每个网格项拉伸以填满列宽度 */
             justify-items: center; /* 保持网格项居中对齐 */
             justify-content: center; /* 居中整个网格 */
         }
@@ -136,15 +137,40 @@
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
             display: flex;
             flex-direction: column;
-            height: 100%; /* 使媒体项高度一致 */
+            height: 100%; /* 确保高度一致 */
+            width: 100%; /* 修改此行以使宽度等于父容器分配的宽度 */
             max-width: 500px; /* 设置媒体项的最大宽度 */
-            width: auto; /* 改为 auto 以避免过度拉伸 */
+            transition: transform 0.3s ease, width 0.3s ease, box-shadow 0.3s ease;
+            position: relative; /* 确保放大时可叠加 */
+            z-index: 1; /* 默认层级 */
+        }
+        .media-item.enlarged {
+            transform: scale(1.2); /* 平滑放大 */
+            width: 500px !important; /* 强制宽度 */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3); /* 加强阴影效果 */
+            z-index: 2000; /* 提升层级，确保在最前面 */
+        }
+        /* 确保放大时复选框和静音按钮保持可见 */
+        .media-item.enlarged .checkbox-container,
+        .media-item.enlarged .audio-button {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        /* 隐藏非放大状态下复选框和静音按钮 */
+        .checkbox-container,
+        .audio-button {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
         .media-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            max-width: 100%; /* 确保媒体内容不超过容器宽度 */
-            /*max-height: 500px; /* 设置媒体内容的最大高度，防止过高 */
+        }
+        .media-item:hover .checkbox-container,
+        .media-item:hover .audio-button {
+            opacity: 1;
+            pointer-events: auto;
         }
         /* 媒体元素样式 */
         .media-content {
@@ -230,10 +256,30 @@
         }
         /* 反馈消息样式 */
         #feedback {
-            text-align: center;
-            margin: 10px 0;
-            color: var(--feedback-color);
-            font-weight: bold;
+            position: fixed;
+            top: 20px; /* 距离顶部20px */
+            left: 50%; /* 水平居中 */
+            transform: translateX(-50%); /* 水平居中 */
+            background-color: rgba(0, 123, 255, 0.9); /* 默认背景颜色（蓝色） */
+            color: white; /* 文字颜色为白色 */
+            padding: 10px 20px; /* 内边距 */
+            border-radius: 5px; /* 边角圆润 */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            z-index: 10000; /* 确保在最上层 */
+            opacity: 0; /* 默认隐藏 */
+            transition: opacity 0.5s ease, transform 0.5s ease; /* 渐变效果 */
+            pointer-events: none; /* 允许点击穿透 */
+        }
+
+        /* 显示反馈消息 */
+        #feedback.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0); /* 显示时调整位置 */
+        }
+
+        /* 错误状态的反馈消息 */
+        #feedback.error {
+            background-color: rgba(220, 53, 69, 0.9); /* 红色背景表示错误 */
         }
         /* 导出区域样式 */
         #output {
@@ -354,6 +400,55 @@
         .search-mode label {
             margin-right: 10px;
         }
+        /* 浮动媒体弹出框样式 */
+        .popup {
+            display: none; /* 默认隐藏 */
+            position: absolute; /* 绝对定位 */
+            width: 500px;
+            background-color: var(--modal-background);
+            border: 1px solid #888;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 3000; /* 确保在最前面 */
+            padding: 20px;
+            color: var(--modal-text-color);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .popup.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .popup-media-container {
+            width: 100%;
+            height: auto;
+        }
+
+        .popup-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        /* 弹出框内的复选框和静音按钮样式 */
+        #popupCheckbox {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        #popupMuteButton {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body class="light-theme">
@@ -443,6 +538,10 @@ https://example.com/data1.json"></textarea>
             <p>希望您使用愉快！若有任何问题或建议，欢迎反馈。</p>
         </div>
     </div>
+    <!-- 浮动媒体弹出框 -->
+    <div id="popup" class="popup">
+        <div class="popup-media-container"></div>
+    </div>
     <script>
         (function() {
             // 定义变量
@@ -452,7 +551,7 @@ https://example.com/data1.json"></textarea>
             let pageSize = 2; // 每页显示的记录数
             let lineSize = 4; // 每行显示的媒体项数
             let totalPages = 0;
-            const selectedImages = new Set(); // 使用 Set 避免重复
+            const selectedImages = [];
 
             // DOM元素缓存
             const inputTextArea = document.getElementById("input");
@@ -494,15 +593,21 @@ https://example.com/data1.json"></textarea>
 
             // 加载媒体函数
             window.loadImages = function() {
+                const exportLen = exportImages(); // 自动导出当前选择的链接
                 const text = inputTextArea.value.replace(/\t/g, "\n");
                 const lines = text.split("\n").map(line => line.trim()).filter(line => line !== "");
                 originalImages = lines; // 保存原始媒体链接
+                selectedImages.length = 0; // 清空已选中的数组
                 groupImages(); // 分组媒体链接
                 currentPage = 1;
                 totalPages = Math.ceil(images.length / pageSize);
                 updatePagination();
                 renderImages();
-                showFeedback(`加载了 ${originalImages.length} 个媒体链接。`);
+                if (!exportLen) {
+                    showFeedback(`加载了 ${originalImages.length} 个媒体链接。`);
+                } else{
+                    showFeedback(`加载了 ${originalImages.length} 个媒体链接。\n ${exportLen} 个内容已备份`);
+                }
             };
 
             // 按行列分组媒体链接
@@ -534,85 +639,6 @@ https://example.com/data1.json"></textarea>
                 prevButton.disabled = currentPage === 1;
                 nextButton.disabled = currentPage === totalPages;
                 updateExportButton();
-            }
-
-            // 创建媒体项
-            function createMediaItem(url) {
-                const div = document.createElement("div");
-                div.className = "media-item";
-                let mediaElement;
-                let audioButton = null;
-                if (isJsonString(url)) {
-                    try {
-                        const jsonObj = JSON.stringify(JSON.parse(url), null, 2) + '\n\n'; // 格式化JSON并换行
-                        mediaElement = createTextContent(jsonObj);
-                    } catch (e) {
-                        mediaElement = createTextContent(url); // 如果JSON解析失败，则显示原文本
-                    }
-                } else if (isVideo(url)) {
-                    const videoContainer = document.createElement("div");
-                    videoContainer.className = "video-container";
-                    videoContainer.style.position = "relative"; // 确保相对定位
-                    const video = document.createElement("video");
-                    video.src = url;
-                    video.autoplay = true;
-                    video.muted = true;
-                    video.loop = true;
-                    video.className = "media-content";
-                    video.setAttribute("aria-label", "Video content");
-                    // 创建喇叭按钮
-                    audioButton = createAudioButton(video);
-                    videoContainer.appendChild(video);
-                    videoContainer.appendChild(audioButton);
-                    mediaElement = videoContainer;
-                } else if (isImage(url)) {
-                    mediaElement = createImage(url);
-                } else if (isAudio(url)) {
-                    mediaElement = createAudio(url);
-                } else {
-                    mediaElement = createTextContent(url);
-                }
-
-                // 复选框容器
-                const checkboxContainer = document.createElement("div");
-                checkboxContainer.className = "checkbox-container";
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = url;
-                checkbox.setAttribute("aria-label", "选择媒体");
-                // 初始化复选框状态
-                if (selectedImages.has(url)) {
-                    checkbox.checked = true;
-                    div.classList.add("selected");
-                }
-                // 复选框事件处理
-                checkbox.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    if (checkbox.checked) {
-                        selectedImages.add(url);
-                        div.classList.add("selected");
-                    } else {
-                        selectedImages.delete(url);
-                        div.classList.remove("selected");
-                    }
-                    updateExportButton();
-                });
-                checkboxContainer.appendChild(checkbox);
-                div.appendChild(mediaElement);
-                div.appendChild(checkboxContainer);
-                // 媒体元素点击事件，切换复选框
-                mediaElement.addEventListener("click", () => {
-                    checkbox.checked = !checkbox.checked;
-                    if (checkbox.checked) {
-                        selectedImages.add(url);
-                        div.classList.add("selected");
-                    } else {
-                        selectedImages.delete(url);
-                        div.classList.remove("selected");
-                    }
-                    updateExportButton();
-                });
-                return div;
             }
 
             // 创建文本内容（支持JSON语法高亮）
@@ -689,10 +715,11 @@ https://example.com/data1.json"></textarea>
             lineSizeInput.addEventListener("change", (e) => {
                 const val = parseInt(e.target.value);
                 if (!isNaN(val) && val > 0) {
+                    const currentIndex = (currentPage - 1) * pageSize; // 记住当前记录的起始位置
                     lineSize = val;
                     groupImages(); // 重新分组媒体链接
                     totalPages = Math.ceil(images.length / pageSize);
-                    currentPage = Math.min(currentPage, totalPages);
+                    currentPage = Math.floor(currentIndex / pageSize) + 1; // 根据新的pageSize计算当前页
                     updatePagination();
                     // 设置 grid-template-columns 根据 lineSize
                     container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
@@ -740,16 +767,19 @@ https://example.com/data1.json"></textarea>
 
             // 导出选中的媒体链接
             window.exportImages = function() {
-                if (selectedImages.size === 0) {
-                    showFeedback("没有选择任何媒体链接。", true);
-                    return;
+                if (selectedImages.length === 0) {
+                    //showFeedback("没有选择任何媒体链接。", true);
+                    return null;
                 }
-                const exported = Array.from(selectedImages).join("\n");
+                const exported = originalImages.filter(url => selectedImages.includes(url)).join("\n");
                 outputTextArea.value = exported;
                 // 自动选择并复制
                 outputTextArea.select();
-                document.execCommand("copy");
-                showFeedback("已复制选中的链接到剪贴板！");
+                //document.execCommand("copy");
+                if (selectedImages.length > 0) {
+                    showFeedback("成功导出！");
+                }
+                return selectedImages.length;
             };
 
             // 批量选择所有当前页媒体
@@ -757,7 +787,7 @@ https://example.com/data1.json"></textarea>
                 const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
                 checkboxes.forEach(cb => {
                     cb.checked = true;
-                    selectedImages.add(cb.value);
+                    selectedImages.push(cb.value);
                 });
                 updateExportButton();
                 showFeedback("所有媒体项已选中。");
@@ -770,7 +800,10 @@ https://example.com/data1.json"></textarea>
                 const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
                 checkboxes.forEach(cb => {
                     cb.checked = false;
-                    selectedImages.delete(cb.value);
+                    const index = selectedImages.indexOf(cb.value);
+                    if (index > -1) {
+                        selectedImages.splice(index, 1);
+                    }
                 });
                 updateExportButton();
                 showFeedback("所有媒体项已取消选择。");
@@ -902,7 +935,7 @@ https://example.com/data1.json"></textarea>
             // 更新导出按钮文本
             function updateExportButton() {
                 if (selectedImages.size > 0) {
-                    exportButton.innerHTML = `导出选中链接 (${selectedImages.size})`;
+                    exportButton.innerHTML = `导出选中链接 (${selectedImages.length})`;
                     exportButton.disabled = false;
                 } else {
                     exportButton.innerHTML = '导出选中链接';
@@ -913,7 +946,8 @@ https://example.com/data1.json"></textarea>
             // 检查是否为JSON字符串
             function isJsonString(str) {
                 try {
-                    JSON.parse(str);
+                    const parsed = JSON.parse(str);
+                    return !(typeof parsed === 'number' && !isNaN(parsed));
                 } catch (e) {
                     return false;
                 }
@@ -939,9 +973,17 @@ https://example.com/data1.json"></textarea>
             // 显示反馈消息
             function showFeedback(message, isError = false) {
                 feedbackDiv.textContent = message;
-                feedbackDiv.style.color = isError ? 'red' : 'var(--feedback-color)';
+                feedbackDiv.classList.remove("error");
+
+                if (isError) {
+                    feedbackDiv.classList.add("error");
+                }
+
+                feedbackDiv.classList.add("show");
+
+                // 在3秒后隐藏反馈消息
                 setTimeout(() => {
-                    feedbackDiv.textContent = '';
+                    feedbackDiv.classList.remove("show");
                 }, 3000);
             }
 
@@ -962,6 +1004,223 @@ https://example.com/data1.json"></textarea>
                     prevPage();
                 } else if (event.key === 'ArrowRight') { // 右箭头键
                     nextPage();
+                }
+            });
+
+            // 获取浮动弹出框的元素
+            const popup = document.getElementById("popup");
+            const popupMediaContainer = document.querySelector("#popup .popup-media-container");
+
+
+            let currentPopupMedia = null;
+            let popupTimeout;
+
+            // 显示浮动弹出框函数
+            function showPopup(mediaItem, mediaElement, url) {
+                // 清空之前的内容
+                popupMediaContainer.innerHTML = "";
+
+                // 根据媒体类型查找子元素
+                const video = mediaElement.querySelector('video');
+                const img = mediaElement;
+                let clonedMedia;
+                if (video) {
+                    clonedMedia = document.createElement('video');
+                    clonedMedia.src = video.src;
+                    clonedMedia.autoplay = true;
+                    clonedMedia.muted = false;
+                    video.muted = true;
+                    // video.pause();
+                    clonedMedia.loop = true;
+                    clonedMedia.className = "media-content";
+                    clonedMedia.setAttribute("aria-label", "Video content");
+                } else if (img) {
+                    clonedMedia = document.createElement('img');
+                    clonedMedia.src = img.src;
+                    clonedMedia.className = "media-content";
+                    clonedMedia.alt = "图片内容";
+                } else {
+                    return; // 仅对视频和图片启用弹出框
+                }
+
+                popupMediaContainer.appendChild(clonedMedia);
+
+
+                // 设置弹出框位置
+                const rect = mediaItem.getBoundingClientRect();
+                const popupTop = rect.top + window.scrollY;
+                let popupLeft = rect.right + 10 + window.scrollX; // 在媒体项右侧10px处显示
+
+                // 如果弹出框超出窗口右侧边界，则显示在左侧
+                const popupWidth = 500;
+                if (popupLeft + popupWidth > window.innerWidth) {
+                    popupLeft = rect.left - popupWidth - 10 + window.scrollX;
+                }
+
+                popup.style.top = `${popupTop}px`;
+                popup.style.left = `${popupLeft}px`;
+
+                // 显示弹出框
+                popup.classList.add("show");
+
+                // 记录当前弹出的媒体
+                currentPopupMedia = {
+                    mediaItem,
+                    mediaElement: clonedMedia
+                };
+            }
+
+            // 隐藏浮动弹出框函数
+            function hidePopup() {
+                popup.classList.remove("show");
+                popupMediaContainer.innerHTML = "";
+                currentPopupMedia = null;
+            }
+
+            // 辅助函数：切换选择状态
+            function toggleSelection(mediaItem, url, isSelected) {
+                if (isSelected) {
+                    selectedImages.push(url);
+                    mediaItem.classList.add("selected");
+                } else {
+                    const index = selectedImages.indexOf(url);
+                    if (index > -1) {
+                        selectedImages.splice(index, 1);
+                    }
+                    mediaItem.classList.remove("selected");
+                }
+                updateExportButton();
+            }
+
+            // 修改后的 createMediaItem 函数
+            function createMediaItem(url) {
+                const div = document.createElement("div");
+                div.className = "media-item";
+                let mediaElement;
+                let audioButton = null;
+
+                if (isJsonString(url)) {
+                    try {
+                        const jsonObj = JSON.stringify(JSON.parse(url), null, 2) + '\n\n'; // 格式化JSON并换行
+                        mediaElement = createTextContent(jsonObj);
+                    } catch (e) {
+                        mediaElement = createTextContent(url); // 如果JSON解析失败，则显示原文本
+                    }
+                } else if (isVideo(url)) {
+                    const videoContainer = document.createElement("div");
+                    videoContainer.className = "video-container";
+                    videoContainer.style.position = "relative"; // 确保相对定位
+                    const video = document.createElement("video");
+                    video.src = url;
+                    video.autoplay = true;
+                    video.muted = true;
+                    video.loop = true;
+                    video.className = "media-content";
+                    video.setAttribute("aria-label", "Video content");
+                    // 创建喇叭按钮
+                    audioButton = createAudioButton(video);
+                    videoContainer.appendChild(video);
+                    videoContainer.appendChild(audioButton);
+                    mediaElement = videoContainer;
+                } else if (isImage(url)) {
+                    mediaElement = createImage(url);
+                } else if (isAudio(url)) {
+                    mediaElement = createAudio(url);
+                } else {
+                    mediaElement = createTextContent(url);
+                }
+
+                // 复选框容器
+                const checkboxContainer = document.createElement("div");
+                checkboxContainer.className = "checkbox-container";
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = url;
+                checkbox.setAttribute("aria-label", "选择媒体");
+                // 初始化复选框状态
+                if (selectedImages.includes(url)) {
+                    checkbox.checked = true;
+                    div.classList.add("selected");
+                }
+                // 复选框事件处理
+                checkbox.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    toggleSelection(div, url, checkbox.checked);
+                });
+                checkboxContainer.appendChild(checkbox);
+                div.appendChild(mediaElement);
+                div.appendChild(checkboxContainer);
+
+                // 媒体元素点击事件，切换复选框
+                mediaElement.addEventListener("click", () => {
+                    checkbox.checked = !checkbox.checked;
+                    toggleSelection(div, url, checkbox.checked);
+                });
+
+                // 仅对图片和视频添加悬停弹出框
+                if (isImage(url) || isVideo(url)) {
+                    const handleMouseEnter = () => {
+                        popupTimeout = setTimeout(() => {
+                            let mediaWidth;
+                            const video = mediaElement.querySelector('video');
+                            const img = mediaElement;
+                            if (video) {
+                                mediaWidth = video.clientWidth;
+                            } else if (img) {
+                                mediaWidth = img.clientWidth;
+                            } else {
+                                mediaWidth = div.clientWidth; // 对于其他类型内容
+                            }
+                            if (mediaWidth < 500) {
+                                showPopup(div, mediaElement, url);
+                            }
+                        }, 300);
+                    }
+                    div.addEventListener("mouseenter", handleMouseEnter);
+
+                    // 当鼠标移出媒体项和弹出框时关闭弹出框
+                    const handleMouseLeave = () => {
+                        popupTimeout = setTimeout(() => {
+                            if (!popup.matches(':hover') && !div.matches(':hover')) {
+                                hidePopup();
+                            }
+                            // if (!popup.matches(':hover')) {
+                            //     hidePopup();
+                            // }
+                        }, 100);
+                    }
+
+                    div.addEventListener("mouseleave", handleMouseLeave);
+                    popup.addEventListener("mouseleave", handleMouseLeave);
+
+                    // 点击弹出框切换选择状态
+                    popup.addEventListener("click", (e) => {
+                        if (currentPopupMedia) {
+                            const { mediaItem, mediaElement } = currentPopupMedia;
+                            const video = mediaElement.querySelector('video');
+                            const img = mediaElement.tagName.toLowerCase() === 'img';
+                            const currentUrl = video ? video.src : (img ? img.src : null);
+                            if (currentUrl) {
+                                const isSelected = selectedImages.has(currentUrl);
+                                popupCheckbox.checked = !isSelected;
+                                toggleSelection(mediaItem, currentUrl, !isSelected);
+                            }
+                        }
+                    });
+
+                    // 防止鼠标进入弹出框时触发隐藏
+                    // popup.addEventListener("mouseenter", () => {
+                    //     clearTimeout(popupTimeout);
+                    // });
+                }
+
+                return div;
+            }
+
+            // 点击页面其他地方关闭弹出框（可选）
+            document.addEventListener('click', function(event) {
+                if (!popup.contains(event.target)) {
+                    hidePopup();
                 }
             });
         })();
