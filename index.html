@@ -934,7 +934,7 @@ https://example.com/data1.json"></textarea>
 
             // 更新导出按钮文本
             function updateExportButton() {
-                if (selectedImages.size > 0) {
+                if (selectedImages.length > 0) {
                     exportButton.innerHTML = `导出选中链接 (${selectedImages.length})`;
                     exportButton.disabled = false;
                 } else {
