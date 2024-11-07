@@ -410,26 +410,57 @@
         }
         /* 浮动媒体弹出框样式 */
         .popup {
-            display: none; /* 默认隐藏 */
-            position: absolute; /* 绝对定位 */
+            position: absolute;
             width: 500px;
-            background-color: var(--modal-background);
-            border: 1px solid #888;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 3000; /* 确保在最前面 */
+            background-color: rgba(255, 255, 255, 0.8); /* 半透明黑色背景 */
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* 更强的阴影效果 */
+            z-index: 3000;
             padding: 20px;
-            color: var(--modal-text-color);
-            transition: opacity 0.3s ease;
+            color: #fff; /* 白色文字 */
+            transition: opacity 0.3s ease, transform 0.3s ease;
             opacity: 0;
+            pointer-events: none; /* 默认不可点击 */
         }
+        /* 常规箭头样式 */
+        .popup::after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            z-index: -1;
+        }
+        /* 箭头指向右侧 */
+        .popup.arrow-left::after {
+            border-width: 10px 10px 10px 0;
+            border-color: transparent #fff transparent transparent;
+            left: -10px;
+            top: 20px;
+        }
+        /* 箭头指向左侧 */
+        .popup.arrow-right::after {
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent #fff;
+            right: -10px;
+            top: 20px;
+        }
+        /* 显示弹出框 */
         .popup.show {
-            display: block;
             opacity: 1;
+            pointer-events: auto; /* 可点击 */
         }
-        .popup-media-container {
+        /* 强调放大框内容 */
+        .popup .popup-media-container {
+            max-height: 80vh;
+            overflow: auto;
+        }
+        .popup-media-container img,
+        .popup-media-container video,
+        .popup-media-container audio {
             width: 100%;
             height: auto;
+            border-radius: 5px;
         }
         .popup-controls {
             display: flex;
@@ -992,42 +1023,55 @@ https://example.com/data1.json"></textarea>
             function showPopup(mediaItem, mediaElement, url) {
                 // 清空之前的内容
                 popupMediaContainer.innerHTML = "";
-                // 根据媒体类型查找子元素
-                const video = mediaElement.querySelector('video');
-                const img = mediaElement;
+
+                // 根据媒体类型创建克隆元素
                 let clonedMedia;
-                if (video) {
+                if (mediaElement.querySelector('video')) {
+                    const video = mediaElement.querySelector('video');
                     clonedMedia = document.createElement('video');
                     clonedMedia.src = video.src;
                     clonedMedia.autoplay = true;
                     clonedMedia.muted = false;
-                    video.muted = true;
-                    // video.pause();
                     clonedMedia.loop = true;
                     clonedMedia.className = "media-content";
                     clonedMedia.setAttribute("aria-label", "Video content");
-                } else if (img) {
+                } else if (mediaElement.tagName.toLowerCase() === 'img') {
                     clonedMedia = document.createElement('img');
-                    clonedMedia.src = img.src;
+                    clonedMedia.src = mediaElement.src;
                     clonedMedia.className = "media-content";
                     clonedMedia.alt = "图片内容";
                 } else {
                     return; // 仅对视频和图片启用弹出框
                 }
                 popupMediaContainer.appendChild(clonedMedia);
-                // 设置弹出框位置
+
+                // 获取原始媒体项的位置
                 const rect = mediaItem.getBoundingClientRect();
-                const popupTop = rect.top + window.scrollY;
-                let popupLeft = rect.right + 10 + window.scrollX; // 在媒体项右侧10px处显示
-                // 如果弹出框超出窗口右侧边界，则显示在左侧
                 const popupWidth = 500;
+                const padding = 10; // 距离边缘的距离
+
+                // 计算弹出框的位置
+                let popupTop = rect.top + window.scrollY;
+                let popupLeft = rect.right + padding + window.scrollX; // 默认在右侧显示
+                let arrowClass = 'arrow-left'; // 默认箭头指向左
+
+                // 如果弹出框超出窗口右侧边界，则显示在左侧
                 if (popupLeft + popupWidth > window.innerWidth) {
-                    popupLeft = rect.left - popupWidth - 10 + window.scrollX;
+                    popupLeft = rect.left - popupWidth - padding + window.scrollX;
+                    arrowClass = 'arrow-right'; // 箭头指向右
                 }
+
+                // 设置弹出框位置
                 popup.style.top = `${popupTop}px`;
                 popup.style.left = `${popupLeft}px`;
+
+                // 设置箭头方向
+                popup.classList.remove('arrow-left', 'arrow-right');
+                popup.classList.add(arrowClass);
+
                 // 显示弹出框
                 popup.classList.add("show");
+
                 // 记录当前弹出的媒体
                 currentPopupMedia = {
                     mediaItem,
@@ -1037,6 +1081,7 @@ https://example.com/data1.json"></textarea>
             // 隐藏浮动弹出框函数
             function hidePopup() {
                 popup.classList.remove("show");
+                popup.classList.remove("arrow-left", "arrow-right"); // 移除箭头类
                 popupMediaContainer.innerHTML = "";
                 currentPopupMedia = null;
             }
