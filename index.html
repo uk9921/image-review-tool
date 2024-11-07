@@ -2,8 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>多媒体展示与选择工具</title>
+    <title>保存的多媒体展示与选择工具</title>
     <style>
+        /* 复制原有的CSS样式 */
         /* CSS变量用于主题切换 */
         :root {
             /* 浅色主题变量 */
@@ -270,13 +271,11 @@
             transition: opacity 0.5s ease, transform 0.5s ease; /* 渐变效果 */
             pointer-events: none; /* 允许点击穿透 */
         }
-
         /* 显示反馈消息 */
         #feedback.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0); /* 显示时调整位置 */
         }
-
         /* 错误状态的反馈消息 */
         #feedback.error {
             background-color: rgba(220, 53, 69, 0.9); /* 红色背景表示错误 */
@@ -332,6 +331,15 @@
         }
         .help-button:hover {
             color: var(--button-hover);
+        }
+        /* 保存按钮样式 */
+        .save-button {
+            margin-left: 10px;
+            background-color: #28a745; /* 绿色背景 */
+            color: white;
+        }
+        .save-button:hover {
+            background-color: #218838;
         }
         /* 模态框样式 */
         .modal {
@@ -415,30 +423,25 @@
             transition: opacity 0.3s ease;
             opacity: 0;
         }
-
         .popup.show {
             display: block;
             opacity: 1;
         }
-
         .popup-media-container {
             width: 100%;
             height: auto;
         }
-
         .popup-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 10px;
         }
-
         /* 弹出框内的复选框和静音按钮样式 */
         #popupCheckbox {
             transform: scale(1.2);
             cursor: pointer;
         }
-
         #popupMuteButton {
             background-color: rgba(255, 255, 255, 0.8);
             border: none;
@@ -448,7 +451,6 @@
             font-size: 16px;
             cursor: pointer;
         }
-
     </style>
 </head>
 <body class="light-theme">
@@ -469,6 +471,8 @@ https://example.com/data1.json"></textarea>
                 <button onclick="prevPage()" id="prevButton" disabled>上一页</button>
                 <button onclick="nextPage()" id="nextButton" disabled>下一页</button>
                 <button id="exportButton" onclick="exportImages()" disabled>导出选中链接</button>
+                <!-- 新增的保存按钮 -->
+                <button class="save-button" onclick="savePage()">保存当前页面</button>
             </div>
             <div>
                 <label for="pageSizeInput">每页行数：</label><br>
@@ -552,7 +556,6 @@ https://example.com/data1.json"></textarea>
             let lineSize = 4; // 每行显示的媒体项数
             let totalPages = 0;
             const selectedImages = [];
-
             // DOM元素缓存
             const inputTextArea = document.getElementById("input");
             const container = document.getElementById("container");
@@ -567,7 +570,6 @@ https://example.com/data1.json"></textarea>
             const searchModal = document.getElementById("searchModal");
             const searchInput = document.getElementById("searchInput");
             const searchModeRadios = document.getElementsByName("searchMode");
-
             // 语法高亮函数
             function syntaxHighlight(json) {
                 if (typeof json !== 'string') {
@@ -590,7 +592,6 @@ https://example.com/data1.json"></textarea>
                     return '<span class="' + cls + '">' + match + '</span>';
                 });
             }
-
             // 加载媒体函数
             window.loadImages = function() {
                 const exportLen = exportImages(); // 自动导出当前选择的链接
@@ -604,12 +605,11 @@ https://example.com/data1.json"></textarea>
                 updatePagination();
                 renderImages();
                 if (!exportLen) {
-                    showFeedback(`加载了 ${originalImages.length} 个媒体链接。`);
+                showFeedback(`加载了 ${originalImages.length} 个媒体链接。`);
                 } else{
                     showFeedback(`加载了 ${originalImages.length} 个媒体链接。\n ${exportLen} 个内容已备份`);
                 }
             };
-
             // 按行列分组媒体链接
             function groupImages() {
                 images = [];
@@ -618,7 +618,6 @@ https://example.com/data1.json"></textarea>
                     images.push(group);
                 }
             }
-
             // 渲染媒体
             function renderImages() {
                 container.innerHTML = "";
@@ -640,7 +639,6 @@ https://example.com/data1.json"></textarea>
                 nextButton.disabled = currentPage === totalPages;
                 updateExportButton();
             }
-
             // 创建文本内容（支持JSON语法高亮）
             function createTextContent(text) {
                 const textDiv = document.createElement("div");
@@ -658,7 +656,6 @@ https://example.com/data1.json"></textarea>
                 textDiv.setAttribute("aria-label", "文本内容");
                 return textDiv;
             }
-
             // 创建图片元素
             function createImage(src) {
                 const img = document.createElement("img");
@@ -667,7 +664,6 @@ https://example.com/data1.json"></textarea>
                 img.alt = "图片内容";
                 return img;
             }
-
             // 创建音频元素
             function createAudio(src) {
                 const audio = document.createElement("audio");
@@ -677,7 +673,6 @@ https://example.com/data1.json"></textarea>
                 audio.setAttribute("aria-label", "音频内容");
                 return audio;
             }
-
             // 创建音频按钮
             function createAudioButton(video) {
                 const button = document.createElement("button");
@@ -691,7 +686,6 @@ https://example.com/data1.json"></textarea>
                 });
                 return button;
             }
-
             // 设置每页行数
             const pageSizeInput = document.getElementById("pageSizeInput");
             pageSizeInput.value = pageSize;
@@ -708,7 +702,6 @@ https://example.com/data1.json"></textarea>
                     showFeedback("请输入有效的每页行数（大于0）。", true);
                 }
             });
-
             // 设置每行数量
             const lineSizeInput = document.getElementById("lineSizeInput");
             lineSizeInput.value = lineSize;
@@ -729,7 +722,6 @@ https://example.com/data1.json"></textarea>
                     showFeedback("请输入有效的每行数量（大于0）。", true);
                 }
             });
-
             // 跳转到指定页码
             const goToPageInput = document.getElementById("goToPageInput");
             goToPageInput.addEventListener("keypress", (e) => {
@@ -746,7 +738,6 @@ https://example.com/data1.json"></textarea>
                     }
                 }
             });
-
             // 上一页
             window.prevPage = function() {
                 if (currentPage > 1) {
@@ -755,7 +746,6 @@ https://example.com/data1.json"></textarea>
                     renderImages();
                 }
             };
-
             // 下一页
             window.nextPage = function() {
                 if (currentPage < totalPages) {
@@ -764,7 +754,6 @@ https://example.com/data1.json"></textarea>
                     renderImages();
                 }
             };
-
             // 导出选中的媒体链接
             window.exportImages = function() {
                 if (selectedImages.length === 0) {
@@ -781,28 +770,30 @@ https://example.com/data1.json"></textarea>
                 }
                 return selectedImages.length;
             };
-
             // 批量选择所有当前页媒体
             window.selectAll = function() {
                 const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
                 checkboxes.forEach(cb => {
-                    cb.checked = true;
-                    selectedImages.push(cb.value);
+                    if (!cb.checked) {
+                        cb.checked = true;
+                        selectedImages.push(cb.value);
+                    }
                 });
                 updateExportButton();
                 showFeedback("所有媒体项已选中。");
                 updatePagination();
                 renderImages();
             };
-
             // 批量取消选择所有当前页媒体
             window.deselectAll = function() {
                 const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
                 checkboxes.forEach(cb => {
-                    cb.checked = false;
-                    const index = selectedImages.indexOf(cb.value);
-                    if (index > -1) {
-                        selectedImages.splice(index, 1);
+                    if (cb.checked) {
+                        cb.checked = false;
+                        const index = selectedImages.indexOf(cb.value);
+                        if (index > -1) {
+                            selectedImages.splice(index, 1);
+                        }
                     }
                 });
                 updateExportButton();
@@ -810,7 +801,6 @@ https://example.com/data1.json"></textarea>
                 updatePagination();
                 renderImages();
             };
-
             // 搜索功能
             window.performSearch = function() {
                 const query = searchInput.value.trim();
@@ -858,7 +848,6 @@ https://example.com/data1.json"></textarea>
                 closeSearch();
                 showFeedback(`搜索后剩余 ${images.length} 个记录。`);
             };
-
             // 清空搜索
             window.clearSearch = function() {
                 if (confirm("确定要清空搜索条件并恢复所有媒体项吗？")) {
@@ -873,29 +862,24 @@ https://example.com/data1.json"></textarea>
                     showFeedback("已清空搜索条件，显示所有媒体项。");
                 }
             };
-
             // 打开搜索模态框
             window.openSearch = function() {
                 searchModal.style.display = "block";
                 searchInput.focus();
             };
-
             // 关闭搜索模态框
             window.closeSearch = function() {
                 searchModal.style.display = "none";
                 searchInput.value = "";
             };
-
             // 打开帮助模态框
             window.openHelp = function() {
                 helpModal.style.display = "block";
             };
-
             // 关闭帮助模态框
             window.closeHelp = function() {
                 helpModal.style.display = "none";
             };
-
             // 自动主题检测和应用
             function applyAutomaticTheme() {
                 const savedTheme = localStorage.getItem("theme");
@@ -911,7 +895,6 @@ https://example.com/data1.json"></textarea>
                     }
                 }
             }
-
             // 主题切换函数
             window.toggleTheme = function() {
                 const body = document.body;
@@ -925,13 +908,11 @@ https://example.com/data1.json"></textarea>
                 }
                 showFeedback("主题已切换。");
             };
-
             // 更新分页显示
             function updatePagination() {
                 currentSpan.textContent = currentPage;
                 totalSpan.textContent = totalPages;
             }
-
             // 更新导出按钮文本
             function updateExportButton() {
                 if (selectedImages.length > 0) {
@@ -942,7 +923,6 @@ https://example.com/data1.json"></textarea>
                     exportButton.disabled = true;
                 }
             }
-
             // 检查是否为JSON字符串
             function isJsonString(str) {
                 try {
@@ -953,48 +933,45 @@ https://example.com/data1.json"></textarea>
                 }
                 return true;
             }
-
             // 检查是否为视频文件
             function isVideo(url) {
                 // 允许视频URL末尾有查询参数
                 return /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
             }
-
             // 检查是否为音频文件
             function isAudio(url) {
                 return /\.(mp3|wav|aac)(\?.*)?$/i.test(url);
             }
-
             // 检查是否为图片文件
             function isImage(url) {
                 return /\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i.test(url);
             }
-
             // 显示反馈消息
             function showFeedback(message, isError = false) {
                 feedbackDiv.textContent = message;
                 feedbackDiv.classList.remove("error");
-
                 if (isError) {
                     feedbackDiv.classList.add("error");
                 }
-
                 feedbackDiv.classList.add("show");
-
                 // 在3秒后隐藏反馈消息
                 setTimeout(() => {
                     feedbackDiv.classList.remove("show");
                 }, 3000);
             }
-
             // 初始化页面
             document.addEventListener("DOMContentLoaded", () => {
                 // 自动主题检测和应用
                 applyAutomaticTheme();
                 // 设置 grid-template-columns 根据 lineSize
                 container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
+                // 重新计算总页数
+                totalPages = Math.ceil(images.length / pageSize);
+                // 更新分页显示
+                updatePagination();
+                // 渲染媒体
+                renderImages();
             });
-
             // 键盘快捷键
             document.addEventListener('keydown', function(event) {
                 if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
@@ -1006,20 +983,15 @@ https://example.com/data1.json"></textarea>
                     nextPage();
                 }
             });
-
             // 获取浮动弹出框的元素
             const popup = document.getElementById("popup");
             const popupMediaContainer = document.querySelector("#popup .popup-media-container");
-
-
             let currentPopupMedia = null;
             let popupTimeout;
-
             // 显示浮动弹出框函数
             function showPopup(mediaItem, mediaElement, url) {
                 // 清空之前的内容
                 popupMediaContainer.innerHTML = "";
-
                 // 根据媒体类型查找子元素
                 const video = mediaElement.querySelector('video');
                 const img = mediaElement;
@@ -1042,41 +1014,32 @@ https://example.com/data1.json"></textarea>
                 } else {
                     return; // 仅对视频和图片启用弹出框
                 }
-
                 popupMediaContainer.appendChild(clonedMedia);
-
-
                 // 设置弹出框位置
                 const rect = mediaItem.getBoundingClientRect();
                 const popupTop = rect.top + window.scrollY;
                 let popupLeft = rect.right + 10 + window.scrollX; // 在媒体项右侧10px处显示
-
                 // 如果弹出框超出窗口右侧边界，则显示在左侧
                 const popupWidth = 500;
                 if (popupLeft + popupWidth > window.innerWidth) {
                     popupLeft = rect.left - popupWidth - 10 + window.scrollX;
                 }
-
                 popup.style.top = `${popupTop}px`;
                 popup.style.left = `${popupLeft}px`;
-
                 // 显示弹出框
                 popup.classList.add("show");
-
                 // 记录当前弹出的媒体
                 currentPopupMedia = {
                     mediaItem,
                     mediaElement: clonedMedia
                 };
             }
-
             // 隐藏浮动弹出框函数
             function hidePopup() {
                 popup.classList.remove("show");
                 popupMediaContainer.innerHTML = "";
                 currentPopupMedia = null;
             }
-
             // 辅助函数：切换选择状态
             function toggleSelection(mediaItem, url, isSelected) {
                 if (isSelected) {
@@ -1091,14 +1054,12 @@ https://example.com/data1.json"></textarea>
                 }
                 updateExportButton();
             }
-
             // 修改后的 createMediaItem 函数
             function createMediaItem(url) {
                 const div = document.createElement("div");
                 div.className = "media-item";
                 let mediaElement;
                 let audioButton = null;
-
                 if (isJsonString(url)) {
                     try {
                         const jsonObj = JSON.stringify(JSON.parse(url), null, 2) + '\n\n'; // 格式化JSON并换行
@@ -1129,7 +1090,6 @@ https://example.com/data1.json"></textarea>
                 } else {
                     mediaElement = createTextContent(url);
                 }
-
                 // 复选框容器
                 const checkboxContainer = document.createElement("div");
                 checkboxContainer.className = "checkbox-container";
@@ -1150,13 +1110,11 @@ https://example.com/data1.json"></textarea>
                 checkboxContainer.appendChild(checkbox);
                 div.appendChild(mediaElement);
                 div.appendChild(checkboxContainer);
-
                 // 媒体元素点击事件，切换复选框
                 mediaElement.addEventListener("click", () => {
                     checkbox.checked = !checkbox.checked;
                     toggleSelection(div, url, checkbox.checked);
                 });
-
                 // 仅对图片和视频添加悬停弹出框
                 if (isImage(url) || isVideo(url)) {
                     const handleMouseEnter = () => {
@@ -1177,7 +1135,6 @@ https://example.com/data1.json"></textarea>
                         }, 300);
                     }
                     div.addEventListener("mouseenter", handleMouseEnter);
-
                     // 当鼠标移出媒体项和弹出框时关闭弹出框
                     const handleMouseLeave = () => {
                         popupTimeout = setTimeout(() => {
@@ -1189,10 +1146,8 @@ https://example.com/data1.json"></textarea>
                             // }
                         }, 100);
                     }
-
                     div.addEventListener("mouseleave", handleMouseLeave);
                     popup.addEventListener("mouseleave", handleMouseLeave);
-
                     // 点击弹出框切换选择状态
                     popup.addEventListener("click", (e) => {
                         if (currentPopupMedia) {
@@ -1201,28 +1156,54 @@ https://example.com/data1.json"></textarea>
                             const img = mediaElement.tagName.toLowerCase() === 'img';
                             const currentUrl = video ? video.src : (img ? img.src : null);
                             if (currentUrl) {
-                                const isSelected = selectedImages.has(currentUrl);
-                                popupCheckbox.checked = !isSelected;
+                                const isSelected = selectedImages.includes(currentUrl);
+                                checkbox.checked = !isSelected;
                                 toggleSelection(mediaItem, currentUrl, !isSelected);
                             }
                         }
                     });
-
                     // 防止鼠标进入弹出框时触发隐藏
                     // popup.addEventListener("mouseenter", () => {
                     //     clearTimeout(popupTimeout);
                     // });
                 }
-
                 return div;
             }
-
             // 点击页面其他地方关闭弹出框（可选）
             document.addEventListener('click', function(event) {
                 if (!popup.contains(event.target)) {
                     hidePopup();
                 }
             });
+
+            // 保存当前页面功能
+            window.savePage = function() {
+                // 获取当前的媒体链接和选择状态
+                const data = originalImages.map(url => ({
+                    url: url,
+                    selected: selectedImages.includes(url)
+                }));
+                // 获取当前页面的HTML内容
+                const currentHtml = document.documentElement.outerHTML;
+                // 使用正则替换 originalImages 和 selectedImages 的初始化内容
+                const modifiedHtml = currentHtml
+                    .replace(/let originalImages = \[\];/, `let originalImages = ${JSON.stringify(originalImages, null, 4)};`)
+                    .replace(/let images = \[\];/, `let images = ${JSON.stringify(images, null, 4)};`)
+                    .replace(/let currentPage = \d+;/, `let currentPage = ${currentPage};`)
+                    .replace(/let pageSize = \d+;/, `let pageSize = ${pageSize};`)
+                    .replace(/let lineSize = \d+;/, `let lineSize = ${lineSize};`)
+                    .replace(/const selectedImages = \[\];/, `const selectedImages = ${JSON.stringify(selectedImages, null, 4)};`);
+                // 创建Blob对象
+                const blob = new Blob([modifiedHtml], { type: "text/html" });
+                // 创建下载链接
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "saved_demo_page.html";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showFeedback("页面已保存为 saved_demo_page.html");
+            };
         })();
     </script>
 </body>
