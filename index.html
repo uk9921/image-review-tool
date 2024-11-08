@@ -586,7 +586,7 @@ https://example.com/data1.json"></textarea>
             let pageSize = 2; // 每页显示的记录数
             let lineSize = 4; // 每行显示的媒体项数
             let totalPages = 0;
-            const selectedImages = [];
+            const selectedIndices = new Set();
             // DOM元素缓存
             const inputTextArea = document.getElementById("input");
             const container = document.getElementById("container");
@@ -629,7 +629,7 @@ https://example.com/data1.json"></textarea>
                 const text = inputTextArea.value.replace(/\t/g, "\n");
                 const lines = text.split("\n").map(line => line.trim()).filter(line => line !== "");
                 originalImages = lines; // 保存原始媒体链接
-                selectedImages.length = 0; // 清空已选中的数组
+                selectedIndices.size = 0; // 清空已选中的数组
                 groupImages(); // 分组媒体链接
                 currentPage = 1;
                 totalPages = Math.ceil(images.length / pageSize);
@@ -660,10 +660,11 @@ https://example.com/data1.json"></textarea>
                 const endIndex = Math.min(currentPage * pageSize, images.length);
                 const currentRecords = images.slice(startIndex, endIndex);
                 currentRecords.forEach((record, recordIndex) => {
-                    record.forEach((url, index) => {
-                        const mediaItem = createMediaItem(url);
-                        container.appendChild(mediaItem);
-                    });
+                   record.forEach((url, index) => {
+                       const globalIndex = startIndex * lineSize + recordIndex * lineSize + index;
+                       const mediaItem = createMediaItem(url, globalIndex);
+                       container.appendChild(mediaItem);
+                   });
                 });
                 // 更新按钮状态
                 prevButton.disabled = currentPage === 1;
@@ -787,50 +788,47 @@ https://example.com/data1.json"></textarea>
             };
             // 导出选中的媒体链接
             window.exportImages = function() {
-                if (selectedImages.length === 0) {
+                if (selectedIndices.size === 0) {
                     //showFeedback("没有选择任何媒体链接。", true);
                     return null;
                 }
-                const exported = originalImages.filter(url => selectedImages.includes(url)).join("\n");
+                const sortedIndices = Array.from(selectedIndices).sort((a, b) => a - b);
+                const exported = sortedIndices.map(index => originalImages[index]).join("\n");
+
                 outputTextArea.value = exported;
                 // 自动选择并复制
                 outputTextArea.select();
                 //document.execCommand("copy");
-                if (selectedImages.length > 0) {
+                if (selectedIndices.size > 0) {
                     showFeedback("成功导出！");
                 }
-                return selectedImages.length;
+                return selectedIndices.size;
             };
             // 批量选择所有当前页媒体
             window.selectAll = function() {
-                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
-                checkboxes.forEach(cb => {
-                    if (!cb.checked) {
-                        cb.checked = true;
-                        selectedImages.push(cb.value);
-                    }
-                });
-                updateExportButton();
-                showFeedback("所有媒体项已选中。");
-                updatePagination();
-                renderImages();
+               const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
+               checkboxes.forEach(cb => {
+                   if (!cb.checked) {
+                       cb.checked = true;
+                       selectedIndices.add(parseInt(cb.value));
+                   }
+               });
+               updateExportButton();
+               showFeedback("所有媒体项已选中。");
+               renderImages();
             };
             // 批量取消选择所有当前页媒体
             window.deselectAll = function() {
-                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
-                checkboxes.forEach(cb => {
-                    if (cb.checked) {
-                        cb.checked = false;
-                        const index = selectedImages.indexOf(cb.value);
-                        if (index > -1) {
-                            selectedImages.splice(index, 1);
-                        }
-                    }
-                });
-                updateExportButton();
-                showFeedback("所有媒体项已取消选择。");
-                updatePagination();
-                renderImages();
+               const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
+               checkboxes.forEach(cb => {
+                   if (cb.checked) {
+                       cb.checked = false;
+                       selectedIndices.delete(parseInt(cb.value));
+                   }
+               });
+               updateExportButton();
+               showFeedback("所有媒体项已取消选择。");
+               renderImages();
             };
             // 搜索功能
             window.performSearch = function() {
@@ -946,8 +944,8 @@ https://example.com/data1.json"></textarea>
             }
             // 更新导出按钮文本
             function updateExportButton() {
-                if (selectedImages.length > 0) {
-                    exportButton.innerHTML = `导出选中链接 (${selectedImages.length})`;
+                if (selectedIndices.size > 0) {
+                    exportButton.innerHTML = `导出选中链接 (${selectedIndices.size})`;
                     exportButton.disabled = false;
                 } else {
                     exportButton.innerHTML = '导出选中链接';
@@ -1086,21 +1084,18 @@ https://example.com/data1.json"></textarea>
                 currentPopupMedia = null;
             }
             // 辅助函数：切换选择状态
-            function toggleSelection(mediaItem, url, isSelected) {
-                if (isSelected) {
-                    selectedImages.push(url);
-                    mediaItem.classList.add("selected");
-                } else {
-                    const index = selectedImages.indexOf(url);
-                    if (index > -1) {
-                        selectedImages.splice(index, 1);
-                    }
-                    mediaItem.classList.remove("selected");
-                }
-                updateExportButton();
+            function toggleSelection(mediaItem, index, isSelected) {
+               if (isSelected) {
+                   selectedIndices.add(index);
+                   mediaItem.classList.add("selected");
+               } else {
+                   selectedIndices.delete(index);
+                   mediaItem.classList.remove("selected");
+               }
+               updateExportButton();
             }
             // 修改后的 createMediaItem 函数
-            function createMediaItem(url) {
+            function createMediaItem(url, index) {
                 const div = document.createElement("div");
                 div.className = "media-item";
                 let mediaElement;
@@ -1140,25 +1135,26 @@ https://example.com/data1.json"></textarea>
                 checkboxContainer.className = "checkbox-container";
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
-                checkbox.value = url;
+                checkbox.value = index; // 设置为索引
                 checkbox.setAttribute("aria-label", "选择媒体");
                 // 初始化复选框状态
-                if (selectedImages.includes(url)) {
+                if (selectedIndices.has(index)) {
                     checkbox.checked = true;
                     div.classList.add("selected");
                 }
                 // 复选框事件处理
                 checkbox.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    toggleSelection(div, url, checkbox.checked);
+                    toggleSelection(div, index, checkbox.checked);
                 });
                 checkboxContainer.appendChild(checkbox);
                 div.appendChild(mediaElement);
                 div.appendChild(checkboxContainer);
                 // 媒体元素点击事件，切换复选框
                 mediaElement.addEventListener("click", () => {
+                    const isChecked = !checkbox.checked;
                     checkbox.checked = !checkbox.checked;
-                    toggleSelection(div, url, checkbox.checked);
+                    toggleSelection(div, index, isChecked);
                 });
                 // 仅对图片和视频添加悬停弹出框
                 if (isImage(url) || isVideo(url)) {
@@ -1200,11 +1196,11 @@ https://example.com/data1.json"></textarea>
                             const video = mediaElement.querySelector('video');
                             const img = mediaElement.tagName.toLowerCase() === 'img';
                             const currentUrl = video ? video.src : (img ? img.src : null);
-                            if (currentUrl) {
-                                const isSelected = selectedImages.includes(currentUrl);
-                                checkbox.checked = !isSelected;
-                                toggleSelection(mediaItem, currentUrl, !isSelected);
-                            }
+                            //if (currentUrl) {
+                            //    const isSelected = selectedImages.includes(currentUrl);
+                            //    checkbox.checked = !isSelected;
+                            //    toggleSelection(mediaItem, currentUrl, !isSelected);
+                            //}
                         }
                     });
                     // 防止鼠标进入弹出框时触发隐藏
@@ -1226,20 +1222,42 @@ https://example.com/data1.json"></textarea>
                 // 获取当前的媒体链接和选择状态
                 const data = originalImages.map(url => ({
                     url: url,
-                    selected: selectedImages.includes(url)
+                    selected: selectedIndices.has(originalImages.indexOf(url))
                 }));
+
                 // 获取当前页面的HTML内容
-                const currentHtml = document.documentElement.outerHTML;
-                // 使用正则替换 originalImages 和 selectedImages 的初始化内容
-                const modifiedHtml = currentHtml
+                let currentHtml = document.documentElement.outerHTML;
+
+                // 替换 JavaScript 变量的初始化内容
+                currentHtml = currentHtml
                     .replace(/let originalImages = \[\];/, `let originalImages = ${JSON.stringify(originalImages, null, 4)};`)
                     .replace(/let images = \[\];/, `let images = ${JSON.stringify(images, null, 4)};`)
                     .replace(/let currentPage = \d+;/, `let currentPage = ${currentPage};`)
                     .replace(/let pageSize = \d+;/, `let pageSize = ${pageSize};`)
                     .replace(/let lineSize = \d+;/, `let lineSize = ${lineSize};`)
-                    .replace(/const selectedImages = \[\];/, `const selectedImages = ${JSON.stringify(selectedImages, null, 4)};`);
+                    .replace(/const selectedIndices = new Set\(\);/, `const selectedIndices = new Set(${JSON.stringify(Array.from(selectedIndices))});`);
+
+                // 转义 URL 列表中的特殊字符
+                const escapedUrls = originalImages.map(url => {
+                    return url.replace(/&/g, "&amp;")
+                              .replace(/</g, "&lt;")
+                              .replace(/>/g, "&gt;")
+                              .replace(/"/g, "&quot;")
+                              .replace(/'/g, "&#039;");
+                }).join("\n");
+
+                // 替换 <textarea id="input"> 的内容为原始的 URL 列表
+                currentHtml = currentHtml.replace(
+                    /<textarea\s+id=["']input["'][^>]*>[\s\S]*?<\/textarea>/,
+                    `<textarea id="input" placeholder="每行一个链接，例如：
+            https://example.com/image1.jpg
+            https://example.com/video1.mp4
+            https://example.com/audio1.mp3
+            https://example.com/data1.json">${escapedUrls}</textarea>`
+                );
+
                 // 创建Blob对象
-                const blob = new Blob([modifiedHtml], { type: "text/html" });
+                const blob = new Blob([currentHtml], { type: "text/html" });
                 // 创建下载链接
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
