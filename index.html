@@ -1274,6 +1274,12 @@ https://example.com/data1.json"></textarea>
                 if (mediaElement.tagName.toLowerCase() === 'img') {
                     naturalWidth = mediaElement.naturalWidth;
                     naturalHeight = mediaElement.naturalHeight;
+                    if (naturalWidth === 0 || naturalHeight === 0) {
+                        mediaElement.addEventListener('loadedmetadata', () => {
+                            naturalWidth = mediaElement.naturalWidth;
+                            naturalHeight = mediaElement.naturalHeight;
+                        });
+                    }
                 } else if (mediaElement.tagName.toLowerCase() === 'video') {
                     naturalWidth = mediaElement.videoWidth;
                     naturalHeight = mediaElement.videoHeight;
@@ -1332,7 +1338,15 @@ https://example.com/data1.json"></textarea>
 
                     /////
                     var container = mediaElement.parentElement; // 获取容器元素
-
+                    if (naturalWidth === 0 || naturalHeight === 0) {
+                        if (mediaElement.tagName.toLowerCase() === 'img') {
+                            naturalWidth = mediaElement.naturalWidth;
+                            naturalHeight = mediaElement.naturalHeight;
+                        } else if (mediaElement.tagName.toLowerCase() === 'video') {
+                            naturalWidth = mediaElement.videoWidth;
+                            naturalHeight = mediaElement.videoHeight;
+                        }
+                    }
                     // 获取原图尺寸
                     var originalWidth = naturalWidth;
                     var originalHeight = naturalHeight;
