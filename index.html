@@ -1210,7 +1210,7 @@ https://example.com/data1.json"></textarea>
                     videoContainer.appendChild(video);
                     audioButton = createAudioButton(video);
                     videoContainer.appendChild(audioButton);
-                    mediaElement = video;
+                    mediaElement = videoContainer;
                     addZoomFunctionality(div, mediaElement); // 传入具体的媒体元素
                 } else if (isImage(url)) {
                     mediaElement = createImage(url);
@@ -1280,7 +1280,8 @@ https://example.com/data1.json"></textarea>
                             naturalHeight = mediaElement.naturalHeight;
                         });
                     }
-                } else if (mediaElement.tagName.toLowerCase() === 'video') {
+                } else if (mediaElement.tagName.toLowerCase() === 'div') {
+                    mediaElement = mediaElement.querySelector('video');
                     naturalWidth = mediaElement.videoWidth;
                     naturalHeight = mediaElement.videoHeight;
                     if (naturalWidth === 0 || naturalHeight === 0) {
