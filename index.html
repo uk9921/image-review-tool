@@ -526,6 +526,24 @@
             /* border-radius: 6px;  增加圆角 */
         }
 
+        /* 版权注释样式 */
+        .footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: var(--toolbar-background);
+            color: var(--text-color);
+            font-size: 14px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 为了避免内容被固定底部的 footer 遮挡，添加下边距 */
+        body {
+            padding-bottom: 50px; /* 根据 footer 的高度调整 */
+        }
+
     </style>
 </head>
 <body class="light-theme">
@@ -1540,5 +1558,11 @@ https://example.com/data1.json"></textarea>
             };
         })();
     </script>
+<!-- 添加版权注释 -->
+<footer class="footer">
+    Powered By 淘天业务技术-用户&内容技术-内容AI-视频生成
+    <br/>
+    支持请联系：qiqiaosong.qqs@taobao.com
+</footer>
 </body>
 </html>
