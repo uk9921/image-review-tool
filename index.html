@@ -141,6 +141,7 @@
             height: 100%; /* 确保高度一致 */
             width: 100%; /* 修改此行以使宽度等于父容器分配的宽度 */
             max-width: 500px; /* 设置媒体项的最大宽度 */
+            min-height: 100px; /* 设置媒体项的最小高度 */
             transition: transform 0.3s ease, width 0.3s ease, box-shadow 0.3s ease;
             position: relative; /* 确保放大时可叠加 */
             z-index: 1; /* 默认层级 */
@@ -787,6 +788,7 @@ https://example.com/data1.json"></textarea>
                 audio.controls = true;
                 audio.className = "media-content";
                 audio.setAttribute("aria-label", "音频内容");
+                audio.style.height = "50px"
                 return audio;
             }
             // 创建音频按钮
