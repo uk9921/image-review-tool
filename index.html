@@ -1081,7 +1081,7 @@ https://example.com/data1.json"></textarea>
             };
             // 自动主题检测和应用
             function applyAutomaticTheme() {
-                const savedTheme = LocalStorageManager.get("theme");
+                const savedTheme = LocalStorageManager.get("theme_v2");
                 if (savedTheme) {
                     document.body.classList.remove("light-theme", "dark-theme");
                     document.body.classList.add(`${savedTheme}-theme`);
@@ -1103,9 +1103,9 @@ https://example.com/data1.json"></textarea>
                 body.classList.toggle("light-theme");
                 // 保存用户选择到 localStorage
                 if (body.classList.contains("dark-theme")) {
-                    LocalStorageManager.set("theme", "dark", 60*24);
+                    LocalStorageManager.set("theme_v2", "dark", 60*24);
                 } else {
-                    LocalStorageManager.set("theme", "light", 60*24);
+                    LocalStorageManager.set("theme_v2", "light", 60*24);
                 }
                 showFeedback("已记住您的主题设置(有效期24h)");
             };
