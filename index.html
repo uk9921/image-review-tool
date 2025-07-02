@@ -704,6 +704,32 @@ https://example.com/data1.json"></textarea>
             const searchModal = document.getElementById("searchModal");
             const searchInput = document.getElementById("searchInput");
             const searchModeRadios = document.getElementsByName("searchMode");
+
+            class LocalStorageManager {static set(key, value, expireMinutes = 60) {
+                const expireTime = new Date().getTime() + (expireMinutes * 60 * 1000);
+                const data = {
+                    value,
+                    expire: expireTime
+                };
+                localStorage.setItem(key, JSON.stringify(data));}
+
+                static get(key) {
+                    const data = localStorage.getItem(key);
+                    if (!data) return null;
+
+                    const { value, expire } = JSON.parse(data);
+                    if (Date.now() > expire) {
+                        localStorage.removeItem(key);
+                        return null;
+                    }
+                    return value;
+                }
+
+                static remove(key) {
+                    localStorage.removeItem(key);
+                }
+            }
+
             // 语法高亮函数
             function syntaxHighlight(json) {
                 if (typeof json !== 'string') {
@@ -1055,7 +1081,7 @@ https://example.com/data1.json"></textarea>
             };
             // 自动主题检测和应用
             function applyAutomaticTheme() {
-                const savedTheme = localStorage.getItem("theme");
+                const savedTheme = LocalStorageManager.get("theme");
                 if (savedTheme) {
                     document.body.classList.remove("light-theme", "dark-theme");
                     document.body.classList.add(`${savedTheme}-theme`);
@@ -1063,8 +1089,10 @@ https://example.com/data1.json"></textarea>
                     const hour = new Date().getHours();
                     if (hour >= 19 || hour < 6) {
                         document.body.classList.add("dark-theme");
+                        showFeedback("夜深了，为您开启护眼模式☕️")
                     } else {
                         document.body.classList.add("light-theme");
+                        showFeedback("早上好，护眼模式已解除🌞")
                     }
                 }
             }
@@ -1075,11 +1103,11 @@ https://example.com/data1.json"></textarea>
                 body.classList.toggle("light-theme");
                 // 保存用户选择到 localStorage
                 if (body.classList.contains("dark-theme")) {
-                    localStorage.setItem("theme", "dark");
+                    LocalStorageManager.set("theme", "dark", 60*24);
                 } else {
-                    localStorage.setItem("theme", "light");
+                    LocalStorageManager.set("theme", "light", 60*24);
                 }
-                showFeedback("主题已切换。");
+                showFeedback("已记住您的主题设置(有效期24h)");
             };
             // 更新分页显示
             function updatePagination() {
