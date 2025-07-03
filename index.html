@@ -1090,11 +1090,12 @@ https://example.com/data1.json"></textarea>
                     if (hour >= 19 || hour < 6) {
                         document.body.classList.add("dark-theme");
                         showFeedback("夜深了，为您开启护眼模式☕️")
-                    } else if (hour >=6 && hour < 12 {
+                    } else if (hour >=6 && hour < 12) {
                         document.body.classList.add("light-theme");
-                        showFeedback("早上好，护眼模式已解除🌞")
+                        showFeedback("早上好，护眼模式已解除🌞");
                     } else {
                         document.body.classList.add("light-theme");
+                        showFeedback("护眼模式已解除🌞");
                     }
                 }
             }
@@ -1105,9 +1106,9 @@ https://example.com/data1.json"></textarea>
                 body.classList.toggle("light-theme");
                 // 保存用户选择到 localStorage
                 if (body.classList.contains("dark-theme")) {
-                    LocalStorageManager.set("theme_v2", "dark", 60*24);
+                    LocalStorageManager.set("theme_v2", "dark", 0.1);
                 } else {
-                    LocalStorageManager.set("theme_v2", "light", 60*24);
+                    LocalStorageManager.set("theme_v2", "light", 0.1);
                 }
                 showFeedback("已记住您的主题设置(有效期24h)");
             };
