@@ -1090,9 +1090,11 @@ https://example.com/data1.json"></textarea>
                     if (hour >= 19 || hour < 6) {
                         document.body.classList.add("dark-theme");
                         showFeedback("夜深了，为您开启护眼模式☕️")
-                    } else {
+                    } else if (hour >=6 && hour < 12 {
                         document.body.classList.add("light-theme");
                         showFeedback("早上好，护眼模式已解除🌞")
+                    } else {
+                        document.body.classList.add("light-theme");
                     }
                 }
             }
