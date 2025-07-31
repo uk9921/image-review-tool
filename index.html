@@ -1597,7 +1597,7 @@
                 // 替换 JavaScript 变量的初始化内容
                 currentHtml = currentHtml
                     .replace(/let originalImages = \[[\s\S]*?\];/, `let originalImages = ${JSON.stringify(originalImages, null,4)};`)
-                    .replace(/let images = \[[\s\S]*?\];/, `let images = ${JSON.stringify(images, null, 4)};`);
+                    .replace(/let images = \[[\s\S]*?\];/, `let images = ${JSON.stringify(images, null, 4)};`)
                     .replace(/let currentPage = \d+;/, `let currentPage = ${currentPage};`)
                     .replace(/let pageSize = \d+;/, `let pageSize = ${pageSize};`)
                     .replace(/let lineSize = \d+;/, `let lineSize = ${lineSize};`)
