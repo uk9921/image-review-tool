@@ -598,7 +598,6 @@
             let lastPageHintTime = 0;
             let lastZoomHintTime = 0;
             const HINT_COOLDOWN = 5000; // 5秒冷却
-            const ZOOM_HINT_COOLDOWN = 50000; // 50秒冷却
 
             // DOM元素缓存
             const inputTextArea = document.getElementById("input");
@@ -682,7 +681,6 @@
                 if (currentHost !== officialHost && window.location.protocol !== 'data:') {
                      setTimeout(() => {
                       showFeedback("💡 提示：点击顶部右侧版权信息获取最新版工具.", false);
-                      setTimeout(() => hideFeedback(), 5000);  // 显示5秒后消失
                     }, 800);
                 }
                 const exportLen = exportImages();
@@ -1157,9 +1155,9 @@
 
             function addZoomFunctionality(container, mediaElement) {
                 // 放大提示冷却逻辑 (Requirement #2)
-                mediaElement.addEventListener('mouseenter', () => {
+                mediaElement.addEventListener('mouseenter', (e) => {
                      const now = Date.now();
-                     if(now - lastZoomHintTime > HINT_COOLDOWN) {
+                     if(now - lastZoomHintTime > HINT_COOLDOWN && !(localStorage.getItem('hasUsedZoom') === 'true') && !e.metaKey) {
                          showFeedback("💡 提示：按住 ⌘ (Command) 键滑动鼠标可放大细节");
                          lastZoomHintTime = now;
                      }
@@ -1320,6 +1318,7 @@
                 const handleMouseMove = throttle((e) => {
                     lastMouseEvent = e;
                     if (e.metaKey) {
+                        localStorage.setItem('hasUsedZoom', 'true');
                         if (!isZoomActive) {
                             isZoomActive = true;
                             updateZoom();
