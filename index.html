@@ -4,150 +4,186 @@
     <meta charset="UTF-8">
     <title>保存的多媒体展示与选择工具</title>
     <style>
-        /* 复制原有的CSS样式 */
-        /* CSS变量用于主题切换 */
+        /* --- 基础变量 --- */
         :root {
             /* 浅色主题变量 */
-            --background-color: #f4f4f4;
-            --toolbar-background: #fff;
+            --background-color: #f8f9fa;
+            --toolbar-background: #ffffff;
             --text-color: #333;
             --button-background: #007BFF;
-            --button-hover: #0056b3;
-            --button-disabled: #cccccc;
+            --button-hover: #0069d9;
+            --button-disabled: #e9ecef;
+            --button-text-disabled: #adb5bd;
             --media-background: #fff;
-            --checkbox-background: rgba(255, 255, 255, 0.8);
-            --feedback-color: green;
+            --checkbox-background: rgba(255, 255, 255, 0.9);
+            --feedback-color: #28a745;
             --modal-background: #fff;
             --modal-text-color: #333;
             --search-modal-background: #fff;
             --search-modal-text-color: #333;
+            --input-border: #ced4da;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
         }
         /* 深色主题变量 */
         .dark-theme {
-            --background-color: #2c2c2c;
-            --toolbar-background: #333;
-            --text-color: #f4f4f4;
-            --button-background: #1a73e8;
-            --button-hover: #135ab4;
-            --button-disabled: #555555;
-            --media-background: #444;
-            --checkbox-background: rgba(50, 50, 50, 0.8);
+            --background-color: #1e1e1e;
+            --toolbar-background: #2d2d2d;
+            --text-color: #e0e0e0;
+            --button-background: #3a86ff;
+            --button-hover: #2667cc;
+            --button-disabled: #444;
+            --button-text-disabled: #777;
+            --media-background: #333;
+            --checkbox-background: rgba(50, 50, 50, 0.9);
             --feedback-color: #4caf50;
-            --modal-background: #555;
+            --modal-background: #424242;
             --modal-text-color: #f4f4f4;
-            --search-modal-background: #555;
+            --search-modal-background: #424242;
             --search-modal-text-color: #f4f4f4;
+            --input-border: #555;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
         }
         /* 基础样式 */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--background-color);
             margin: 0;
             padding: 0;
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
         }
-        /* 顶部工具栏样式 */
+        /* --- 顶部工具栏 --- */
         .toolbar {
             background-color: var(--toolbar-background);
-            padding: 10px 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             position: sticky;
             top: 0;
             z-index: 1000;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            border-bottom: 1px solid var(--input-border);
         }
         .toolbar .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             justify-content: center;
         }
         .toolbar label {
-            margin-right: 5px;
-            font-weight: bold;
+            margin-right: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-color);
         }
         .toolbar input[type="text"],
         .toolbar input[type="number"],
         .toolbar textarea {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 8px 10px;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
             width: 100px;
             max-width: 100%;
             box-sizing: border-box;
-            transition: background-color 0.3s, color 0.3s;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+            background-color: var(--media-background);
+            color: var(--text-color);
         }
-        /* 浅色和深色主题输入框样式 */
-        body.light-theme input[type="text"],
-        body.light-theme input[type="number"],
-        body.light-theme textarea {
-            background-color: #fff;
-            color: #333;
-        }
-        body.dark-theme input[type="text"],
-        body.dark-theme input[type="number"],
-        body.dark-theme textarea {
-            background-color: #555;
-            color: #f4f4f4;
-            border: 1px solid #666;
+        .toolbar input:focus, .toolbar textarea:focus {
+            border-color: var(--button-background);
+            box-shadow: 0 0 0 2px rgba(0,123,255, 0.15);
         }
         .toolbar textarea {
             resize: vertical;
-            height: 60px;
+            height: 38px;
+            min-height: 38px;
+            vertical-align: middle;
         }
         .toolbar button {
-            padding: 7px 12px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             background-color: var(--button-background);
             color: white;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.2s ease;
             font-size: 14px;
+            font-weight: 500;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
         }
         .toolbar button:hover {
             background-color: var(--button-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        .toolbar button:active {
+            transform: translateY(0);
         }
         .toolbar button:disabled {
             background-color: var(--button-disabled);
+            color: var(--button-text-disabled);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-        /* 自动播放开关样式 */
         .autoplay-toggle {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
             background-color: var(--button-background);
             color: white;
-            padding: 7px 12px;
-            border-radius: 4px;
+            padding: 0 16px;
+            height: 38px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.2s;
             font-size: 14px;
             border: none;
             user-select: none;
+            box-shadow: var(--shadow-sm);
         }
         .autoplay-toggle:hover {
             background-color: var(--button-hover);
+            transform: translateY(-1px);
         }
         .autoplay-toggle.disabled {
-            background-color: var(--button-disabled);
+            background-color: #6c757d;
         }
-        .autoplay-toggle input[type="checkbox"] {
-            margin: 0;
-            transform: scale(1.2);
+        .toolbar button.icon-btn {
+            background-color: transparent;
+            color: var(--text-color);
+            box-shadow: none;
+            font-size: 20px;
+            padding: 0 8px;
+            margin-left: 4px;
         }
-        /* 内容容器样式 */
+        .toolbar button.icon-btn:hover {
+            color: var(--button-background);
+            background-color: rgba(0,0,0,0.05);
+            transform: none;
+        }
+        .save-button {
+            background-color: #28a745 !important;
+        }
+        .save-button:hover {
+            background-color: #218838 !important;
+        }
+        
+        /* --- 媒体网格 --- */
         #container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 默认响应式 */
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
             padding: 20px;
-            justify-items: stretch; /* 修改此行以确保每个网格项拉伸以填满列宽度 */
-            justify-items: center; /* 保持网格项居中对齐 */
-            justify-content: center; /* 居中整个网格 */
+            justify-items: stretch;
+            justify-items: center;
+            justify-content: center;
         }
         .media-item {
             position: relative;
@@ -156,80 +192,65 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+            transition: transform 0.3s ease, width 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
-            height: 100%; /* 确保高度一致 */
-            width: 100%; /* 修改此行以使宽度等于父容器分配的宽度 */
-            max-width: 500px; /* 设置媒体项的最大宽度 */
-            min-height: 100px; /* 设置媒体项的最小高度 */
-            transition: transform 0.3s ease, width 0.3s ease, box-shadow 0.3s ease;
-            position: relative; /* 确保放大时可叠加 */
-            z-index: 1; /* 默认层级 */
-        }
-        .media-item.enlarged {
-            transform: scale(1.2); /* 平滑放大 */
-            width: 500px !important; /* 强制宽度 */
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3); /* 加强阴影效果 */
-            z-index: 2000; /* 提升层级，确保在最前面 */
-        }
-        /* 确保放大时复选框和静音按钮保持可见 */
-        .media-item.enlarged .checkbox-container,
-        .media-item.enlarged .audio-button {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        /* 隐藏非放大状态下复选框和静音按钮 */
-        .checkbox-container,
-        .audio-button {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
+            height: 100%;
+            width: 100%;
+            max-width: 500px;
+            min-height: 100px;
+            z-index: 1;
         }
         .media-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
-        .media-item:hover .checkbox-container,
-        .media-item:hover .audio-button {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        /* 媒体元素样式 */
         .media-content {
             width: 100%;
             height: auto;
             display: block;
             flex-grow: 1;
-            object-fit: contain; /* 确保媒体内容填满容器且保持比例 */
+            object-fit: contain;
         }
+        
+        /* --- 分辨率标签 (New Requirement #1) --- */
+        .resolution-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none; /* 让鼠标点击穿透 */
+            z-index: 10;
+            font-family: Consolas, monospace;
+            backdrop-filter: blur(2px);
+        }
+        .media-item:hover .resolution-badge {
+            opacity: 1;
+        }
+
+        /* 文本内容 */
         .text-content {
             padding: 10px;
             white-space: pre-wrap;
             word-break: break-word;
             flex-grow: 1;
             font-family: Consolas, "Courier New", monospace;
-            /* background-color: #f6f8fa; */
             border-radius: 4px;
             overflow-x: auto;
         }
-        /* JSON语法高亮样式 */
-        .json-key {
-            color: #c92c2c;
-        }
-        .json-string {
-            color: #22863a;
-        }
-        .json-number {
-            color: #005cc5;
-        }
-        .json-boolean {
-            color: #d73a49;
-        }
-        .json-null {
-            color: #6a737d;
-        }
-        /* 喇叭按钮样式 */
+        .json-key { color: #c92c2c; }
+        .json-string { color: #22863a; }
+        .json-number { color: #005cc5; }
+        .json-boolean { color: #d73a49; }
+        .json-null { color: #6a737d; }
+
+        /* 控件悬浮样式 */
         .audio-button {
             position: absolute;
             bottom: 10px;
@@ -244,15 +265,13 @@
             justify-content: center;
             opacity: 0;
             transition: opacity 0.3s, background-color 0.3s;
-            pointer-events: auto; /* 确保按钮可点击 */
+            pointer-events: auto;
             width: 30px;
             height: 30px;
             font-size: 16px;
         }
-        .video-container:hover .audio-button {
-            opacity: 1; /* 鼠标悬停时显示按钮 */
-        }
-        /* 复选框容器样式 */
+        .media-item:hover .audio-button { opacity: 1; }
+        
         .checkbox-container {
             position: absolute;
             top: 10px;
@@ -261,14 +280,11 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 2px;
-            opacity: 0; /* 默认隐藏 */
+            opacity: 0;
             transition: opacity 0.3s;
-            pointer-events: none; /* 默认不响应事件 */
+            pointer-events: none;
         }
-        .media-item:hover .checkbox-container {
-            opacity: 1; /* 鼠标悬停时显示复选框 */
-            pointer-events: auto; /* 允许响应事件 */
-        }
+        .media-item:hover .checkbox-container,
         .media-item.selected .checkbox-container {
             opacity: 1;
             pointer-events: auto;
@@ -277,32 +293,32 @@
             transform: scale(1.2);
             cursor: pointer;
         }
-        /* 反馈消息样式 */
+
+        /* 反馈消息 */
         #feedback {
             position: fixed;
-            top: 20px; /* 距离顶部20px */
-            left: 50%; /* 水平居中 */
-            transform: translateX(-50%); /* 水平居中 */
-            background-color: rgba(0, 123, 255, 0.9); /* 默认背景颜色（蓝色） */
-            color: white; /* 文字颜色为白色 */
-            padding: 10px 20px; /* 内边距 */
-            border-radius: 5px; /* 边角圆润 */
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* 阴影效果 */
-            z-index: 10000; /* 确保在最上层 */
-            opacity: 0; /* 默认隐藏 */
-            transition: opacity 0.5s ease, transform 0.5s ease; /* 渐变效果 */
-            pointer-events: none; /* 允许点击穿透 */
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 123, 255, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
         }
-        /* 显示反馈消息 */
         #feedback.show {
             opacity: 1;
-            transform: translateX(-50%) translateY(0); /* 显示时调整位置 */
+            transform: translateX(-50%) translateY(0);
         }
-        /* 错误状态的反馈消息 */
         #feedback.error {
-            background-color: rgba(220, 53, 69, 0.9); /* 红色背景表示错误 */
+            background-color: rgba(220, 53, 69, 0.9);
         }
-        /* 导出区域样式 */
+
+        /* 其他布局 */
         #output {
             width: calc(100% - 40px);
             margin: 0 20px 20px 20px;
@@ -313,74 +329,30 @@
             box-sizing: border-box;
             height: 100px;
         }
-        /* 响应式调整 */
         @media (max-width: 800px) {
-            .toolbar .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .toolbar input[type="text"],
-            .toolbar input[type="number"],
-            .toolbar textarea {
-                width: 100%;
-            }
-            #output {
-                width: calc(100% - 40px);
-            }
+            .toolbar .controls { flex-direction: column; align-items: stretch; }
+            .toolbar input, .toolbar textarea { width: 100%; }
+            #output { width: calc(100% - 40px); }
         }
-        /* 主题切换按钮样式 */
-        .theme-toggle {
-            margin-left: 10px;
-            background-color: transparent;
-            color: var(--text-color);
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            transition: color 0.3s;
-        }
-        .theme-toggle:hover {
-            color: var(--button-hover);
-        }
-        /* 帮助按钮样式 */
-        .help-button {
-            margin-left: 10px;
-            background-color: transparent;
-            color: var(--text-color);
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            transition: color 0.3s;
-        }
-        .help-button:hover {
-            color: var(--button-hover);
-        }
-        /* 保存按钮样式 */
-        .save-button {
-            margin-left: 10px;
-            background-color: #28a745; /* 绿色背景 */
-            color: white;
-        }
-        .save-button:hover {
-            background-color: #218838;
-        }
-        /* 模态框样式 */
+        
+        /* 模态框 */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 2000; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 2000;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
         }
         .modal-content {
             background-color: var(--modal-background);
-            margin: 10% auto; /* 10% from the top and centered */
+            margin: 10% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
+            width: 80%;
             border-radius: 8px;
             color: var(--modal-text-color);
             transition: background-color 0.3s, color 0.3s;
@@ -392,75 +364,67 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-        }
-        /* 批量操作按钮样式 */
         .batch-buttons {
-            margin: 10px 0;
+            margin: 20px 0 10px 0;
             text-align: center;
         }
         .batch-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--button-background);
+            color: white;
+            cursor: pointer;
             margin: 0 5px;
+            transition: all 0.2s;
         }
-        /* Command图标样式 */
-        .command-icon {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            color: var(--text-color);
-            transition: color 0.3s;
-            margin-left: 10px;
+        .batch-buttons button:hover {
+             background-color: var(--button-hover);
         }
-        .command-icon:hover {
-            color: var(--button-hover) !important;
-        }
-        .command-icon.active {
-            color: var(--button-hover) !important;
-        }
-        /* 放大镜搜索图标样式 */
-        .search-icon {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            color: var(--text-color);
-            transition: color 0.3s;
-            margin-left: 10px;
-        }
-        .search-icon:hover {
-            color: var(--button-hover);
-        }
-        /* 搜索模态框样式 */
         #searchModal .modal-content {
             background-color: var(--search-modal-background);
             color: var(--search-modal-text-color);
         }
-        /* 搜索模式切换样式 */
-        .search-mode {
-            margin-top: 10px;
+        .search-mode { margin-top: 10px; }
+        .search-mode label { margin-right: 10px; }
+
+        /* 放大镜相关 */
+        .zoom-box {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border: 1px solid #333;
+            overflow: hidden;
+            display: none;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        .search-mode label {
-            margin-right: 10px;
+        .magnifier-box {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 1px solid white;
+            background-color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            display: none;
+            z-index: 1001;
         }
-        /* 浮动媒体弹出框样式 */
+
+        /* 浮动弹出框 */
         .popup {
             position: absolute;
             width: 500px;
-            background-color: rgba(255, 255, 255, 0.8); /* 半透明黑色背景 */
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* 更强的阴影效果 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
             z-index: 3000;
             padding: 20px;
-            color: #fff; /* 白色文字 */
+            color: #fff;
             transition: opacity 0.3s ease, transform 0.3s ease;
             opacity: 0;
-            pointer-events: none; /* 默认不可点击 */
+            pointer-events: none;
         }
-        /* 常规箭头样式 */
         .popup::after {
             content: "";
             position: absolute;
@@ -469,106 +433,39 @@
             border-style: solid;
             z-index: -1;
         }
-        /* 箭头指向右侧 */
         .popup.arrow-left::after {
             border-width: 10px 10px 10px 0;
             border-color: transparent #fff transparent transparent;
             left: -10px;
             top: 20px;
         }
-        /* 箭头指向左侧 */
         .popup.arrow-right::after {
             border-width: 10px 0 10px 10px;
             border-color: transparent transparent transparent #fff;
             right: -10px;
             top: 20px;
         }
-        /* 显示弹出框 */
         .popup.show {
             opacity: 1;
-            pointer-events: auto; /* 可点击 */
+            pointer-events: auto;
         }
-        /* 强调放大框内容 */
         .popup .popup-media-container {
             max-height: 80vh;
             overflow: auto;
         }
         .popup-media-container img,
-        .popup-media-container video,
-        .popup-media-container audio {
+        .popup-media-container video {
             width: 100%;
             height: auto;
             border-radius: 5px;
         }
-        .popup-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-        /* 弹出框内的复选框和静音按钮样式 */
-        #popupCheckbox {
-            transform: scale(1.2);
-            cursor: pointer;
-        }
-        #popupMuteButton {
-            background-color: rgba(255, 255, 255, 0.8);
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .zoom-box {
-            position: fixed; /* 确保相对于视口定位 */
-            width: 400px;
-            height: 400px;
-            border: 1px solid #333; /* 增加边框厚度 */
-            overflow: hidden;
-            display: none;
-            z-index: 1000; /* 确保在上层 */
-            background-color: rgba(255, 255, 255, 0.9); /* 调整背景颜色 */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* 添加阴影效果 */
-            /* border-radius: 8px;  增加圆角 */
-        }
-        .magnifier-box {
-            position: absolute;
-            width: 60px; /* 从40px增加到60px */
-            height: 60px; /* 从40px增加到60px */
-            border: 1px solid white; /* 增加边框厚度 */
-            background-color: rgba(255, 255, 255, 0.3);
-            pointer-events: none;
-            display: none;
-            z-index: 1001; /* 确保在 zoom-box 之上 */
-            /* border-radius: 6px;  增加圆角 */
-        }
-        /* 版权注释样式 */
-        .footer {
-            text-align: center;
-            padding: 15px 0;
-            background-color: var(--toolbar-background);
-            color: var(--text-color);
-            font-size: 14px;
-            margin-top: 40px; /* 与内容区分开 */
-            border-top: 1px solid #e0e0e0; /* 添加顶部边框以分隔内容 */
-        }
-        /* 响应式版权注释样式 */
-        @media (max-width: 600px) {
-            .footer {
-                font-size: 12px;
-                padding: 10px 0;
-            }
-        }
-        h1 {
-            text-align: center;
-            margin: 30px 0;
-        }
-        /* 新增创作者字体样式 */
+
+        /* 标题栏 */
+        h1 { text-align: center; margin: 30px 0; }
         .haojia-font {
             font-family: "豪佳体", sans-serif;
-            font-weight: 600;  /* 增加字重 */
-            color: #2d2d2d;    /* 加深颜色 */
+            font-weight: 600;
+            color: #2d2d2d;
         }
         .copyright {
             position: absolute;
@@ -576,24 +473,10 @@
             left: 50%;
             z-index: 1001;
             color: var(--text-color);
-            /*background-color: var(--toolbar-background);*/
             padding: 8px 12px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             font-size: 0.65em;
-            margin: 0.5rem 12rem 0.8rem;   /*三值语法精准控制间距
-            opacity: 0.8;
-        }
-        .homelink {
-            position: absolute;
-            top: 45px;
-            left: 50%;
-            z-index: 1001;
-            color: var(--text-color);
-            /*background-color: var(--toolbar-background);*/
-            padding: 8px 12px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            font-size: 0.65em;
-            margin: 0.5rem 12rem 0.8rem;   /*三值语法精准控制间距
+            margin: 0.5rem 12rem 0.8rem;
             opacity: 0.8;
         }
     </style>
@@ -601,31 +484,33 @@
 <body class="light-theme">
     <div class="header">
         <h1>多媒体展示与选择工具</h1>
-        <div class="copyright">© 版权归属:淘天业务技术-<span class="team" style="font-weight: bold;">AI原生应用-内容AI-视频生成</span>
-            <span class="haojia-font">豪佳</span>
-            <a href="https://uk9921.github.io/image-review-tool/" data-hotkey="g d" aria-label="Homepage " data-turbo="false" data-analytics-event="{&quot;category&quot;:&quot;Header&quot;,&quot;action&quot;:&quot;go to dashboard&quot;,&quot;label&quot;:&quot;icon:logo&quot;}">
-              <svg height="9" aria-hidden="true" viewBox="0 0 24 24" version="1.1" width="10" data-view-component="true" class="octicon octicon-mark-github v-align-middle">
-                <path d="M12 1C5.923 1 1 5.923 1 12c0 4.867 3.149 8.979 7.521 10.436.55.096.756-.233.756-.522 0-.262-.013-1.128-.013-2.049-2.764.509-3.479-.674-3.699-1.292-.124-.317-.66-1.293-1.127-1.554-.385-.207-.936-.715-.014-.729.866-.014 1.485.797 1.691 1.128.99 1.663 2.571 1.196 3.204.907.096-.715.385-1.196.701-1.471-2.448-.275-5.005-1.224-5.005-5.432 0-1.196.426-2.186 1.128-2.956-.111-.275-.496-1.402.11-2.915 0 0 .921-.288 3.024 1.128a10.193 10.193 0 0 1 2.75-.371c.936 0 1.871.123 2.75.371 2.104-1.43 3.025-1.128 3.025-1.128.605 1.513.221 2.64.111 2.915.701.77 1.127 1.747 1.127 2.956 0 4.222-2.571 5.157-5.019 5.432.399.344.743 1.004.743 2.035 0 1.471-.014 2.654-.014 3.025 0 .289.206.632.756.522C19.851 20.979 23 16.854 23 12c0-6.077-4.922-11-11-11Z"></path>
-              </svg>
-            </a>
-        </div>
+        <a href="https://uk9921.github.io/image-review-tool/"
+           style="color: inherit; text-decoration: none;"
+                   data-hotkey="g d"
+                   aria-label="Homepage"
+                   data-turbo="false">
+            <div class="copyright">© 版权归属:淘天业务技术-<span class="team" style="font-weight: bold;">AI原生应用-内容AI-视频生成</span>
+
+                  <span class="team"  style="font-weight: bold;">豪佳</span>
+                  <svg height="9" aria-hidden="true" viewBox="0 0 24 24" version="1.1" width="10" data-view-component="true" class="octicon octicon-mark-github v-align-middle">
+                    <path d="M12 1C5.923 1 1 5.923 1 12c0 4.867 3.149 8.979 7.521 10.436.55.096.756-.233.756-.522 0-.262-.013-1.128-.013-2.049-2.764.509-3.479-.674-3.699-1.292-.124-.317-.66-1.293-1.127-1.554-.385-.207-.936-.715-.014-.729.866-.014 1.485.797 1.691 1.128.99 1.663 2.571 1.196 3.204.907.096-.715.385-1.196.701-1.471-2.448-.275-5.005-1.224-5.005-5.432 0-1.196.426-2.186 1.128-2.956-.111-.275-.496-1.402.11-2.915 0 0 .921-.288 3.024 1.128a10.193 10.193 0 0 1 2.75-.371c.936 0 1.871.123 2.75.371 2.104-1.43 3.025-1.128 3.025-1.128.605 1.513.221 2.64.111 2.915.701.77 1.127 1.747 1.127 2.956 0 4.222-2.571 5.157-5.019 5.432.399.344.743 1.004.743 2.035 0 1.471-.014 2.654-.014 3.025 0 .289.206.632.756.522C19.851 20.979 23 16.854 23 12c0-6.077-4.922-11-11-11Z"></path>
+                  </svg>
+            </div>
+        </a>
     </div>
-    <!-- 顶部工具栏 -->
     <div class="toolbar">
         <div class="controls">
             <div>
                 <label for="input">媒体链接：</label><br>
-                <textarea id="input" placeholder="试着把带有链接、文字的表格内容粘贴进来吧！" style="width: 200%; padding: 8px; box-sizing: border-box;"></textarea>
+                <textarea id="input" placeholder="链接粘贴处..." style="width: 200px;"></textarea>
             </div>
             <div>
                 <button onclick="loadImages()">加载媒体</button>
                 <button onclick="prevPage()" id="prevButton" disabled>上一页</button>
                 <button onclick="nextPage()" id="nextButton" disabled>下一页</button>
-                <button id="exportButton" onclick="exportImages()" disabled>导出选中链接</button>
-                <!-- 新增的保存按钮 -->
-                <button class="save-button" onclick="savePage()">导出Demo页面</button>
+                <button id="exportButton" onclick="exportImages()" disabled>导出选中</button>
+                <button class="save-button" onclick="savePage()">保存页面</button>
             </div>
-            <!-- 自动播放开关 -->
             <div>
                 <label class="autoplay-toggle" id="autoplayToggle" onclick="toggleAutoplay()">
                     <input type="checkbox" id="autoplayCheckbox" checked>
@@ -644,86 +529,75 @@
                 <label for="goToPageInput">跳转到页码：</label><br>
                 <input type="text" id="goToPageInput" placeholder="例如：1">
             </div>
-            <!-- 扩展功能按钮 -->
-            <button class="command-icon" onclick="openCommandHelp()" title="放大" style="color: white;">⌘</button>
-            <button class="search-icon" onclick="openSearch()" title="搜索媒体">🔍</button>
-            <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
-            <button class="help-button" onclick="openHelp()" title="帮助">❓</button>
+            <button class="command-icon icon-btn" onclick="openCommandHelp()" title="放大">⌘</button>
+            <button class="search-icon icon-btn" onclick="openSearch()" title="搜索媒体">🔍</button>
+            <button class="theme-toggle icon-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
+            <button class="help-button icon-btn" onclick="openHelp()" title="帮助">❓</button>
         </div>
     </div>
-    <!-- 批量操作按钮 -->
     <div class="batch-buttons">
         <button onclick="selectAll()">全选本页</button>
         <button onclick="deselectAll()">取消全选</button>
     </div>
-    <!-- 当前页数显示 -->
     <p style="text-align:center;">当前第<span id="current">0</span>页，共<span id="total">0</span>页</p>
-    <!-- 媒体内容容器 -->
     <div id="container"></div>
-    <!-- 导出链接区域 -->
     <p style="text-align:center;">导出的链接：</p>
     <textarea id="output" readonly></textarea>
-    <!-- 反馈消息 -->
     <div id="feedback"></div>
-    <!-- 搜索模态框 -->
+
+    <!-- 模态框们 -->
     <div id="searchModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeSearch()">&times;</span>
             <h2>搜索媒体</h2>
-            <input type="text" id="searchInput" placeholder="输入关键词或正则表达式进行搜索" style="width: 100%; padding: 8px; box-sizing: border-box;">
+            <input type="text" id="searchInput" placeholder="输入关键词或正则表达式" style="width: 100%; padding: 8px; box-sizing: border-box;">
             <div class="search-mode">
-                <label><input type="radio" name="searchMode" value="keyword" checked> 关键词搜索</label>
-                <label><input type="radio" name="searchMode" value="regex"> 正则表达式搜索</label>
+                <label><input type="radio" name="searchMode" value="keyword" checked> 关键词</label>
+                <label><input type="radio" name="searchMode" value="regex"> 正则表达式</label>
             </div>
             <button onclick="performSearch()" style="margin-top: 10px;">搜索</button>
             <button onclick="clearSearch()" style="margin-top: 10px; margin-left: 10px;">清空搜索</button>
         </div>
     </div>
-    <!-- ⌘帮助模态框 -->
     <div id="commandModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeCommandHelp()">&times;</span>
             <p>按下⌘键开始放大。</p>
         </div>
     </div>
-    <!-- 帮助模态框 -->
     <div id="helpModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeHelp()">&times;</span>
             <h2>使用指南</h2>
             <p>欢迎使用多媒体展示与选择工具。以下是各功能的使用说明：</p>
             <ul>
-                <li><strong>加载媒体：</strong>将媒体链接粘贴到"媒体链接"文本框中，每行一个链接，然后点击"加载媒体"按钮。</li>
-                <li><strong>自动播放开关：</strong>点击工具栏中的🎬自动播放开关可以控制视频和音频的自动播放功能。开启时，视频会自动播放；关闭时，需要手动点击播放。</li>
-                <li><strong>按行筛选：</strong>点击顶部工具栏中的🔍放大镜图标，打开搜索模态框。在搜索框中输入关键词或正则表达式，并选择搜索模式（关键词搜索或正则表达式搜索），然后点击"搜索"按钮。</li>
-                <li><strong>清空搜索：</strong>在搜索模态框中，点击"清空搜索"按钮，将恢复显示所有媒体项。</li>
-                <li><strong>选择媒体：</strong>将鼠标悬停在媒体项上，右上角的复选框将出现。点击复选框或直接点击媒体项进行选择或取消选择。</li>
-                <li><strong>批量操作：</strong>使用"全选本页"按钮选择所有当前页的媒体，使用"取消全选"按钮取消选择。</li>
-                <li><strong>导出链接：</strong>选择多个媒体项后，点击"导出选中链接"按钮，选中的链接将自动复制到下面的"导出的链接"区域，您可以直接粘贴使用。</li>
-                <li><strong>分页控制：</strong>使用"上一页"和"下一页"按钮进行分页导航，或在"跳转到页码"输入框中输入具体页码并按回车键进行跳转。</li>
-                <li><strong>调整显示数量：</strong>在"每页行数"输入框中设置每页显示的记录数量，在"每行数量"输入框中设置每行显示的媒体项数量。</li>
-                <li><strong>主题切换：</strong>点击顶部工具栏中的🌓按钮切换浅色和深色主题，适应不同的视觉需求。系统将根据时间自动调整主题，您也可以手动切换。</li>
-                <li><strong>音频控制：</strong>对于视频和音频媒体，将鼠标悬停在媒体项上，底部的喇叭按钮（🔇/🔊）将出现。点击按钮可以切换媒体的静音状态。</li>
-                <li><strong>键盘快捷键：</strong>在非输入框和文本区域时，按左右箭头键可以快速切换到上一页或下一页。</li>
+                <li><strong>加载媒体：</strong>粘贴链接每行一个，点击"加载媒体"。</li>
+                <li><strong>放大查看：</strong>按住 Cmd (⌘) 键并移动鼠标查看细节。</li>
+                <li><strong>快捷翻页：</strong>使用键盘 ← / → 键。</li>
+                <li><strong>分辨率：</strong>鼠标悬停在媒体上可查看尺寸。</li>
             </ul>
-            <p>希望您使用愉快！若有任何问题或建议，欢迎反馈。</p>
         </div>
     </div>
-    <!-- 浮动媒体弹出框 -->
     <div id="popup" class="popup">
         <div class="popup-media-container"></div>
     </div>
+
     <script>
         (function() {
             // 定义变量
-            let originalImages = []; // 原始媒体链接
-            let images = []; // 当前展示的记录
+            let originalImages = [];
+            let images = [];
             let currentPage = 1;
-            let pageSize = 2; // 每页显示的记录数
-            let lineSize = 4; // 每行显示的媒体项数
+            let pageSize = 2;
+            let lineSize = 4;
             let totalPages = 0;
             const selectedIndices = new Set();
-            let autoplayEnabled = true; // 自动播放开关状态
+            let autoplayEnabled = true;
+            
+            // 提示冷却时间控制 (Requirement #2)
+            let lastPageHintTime = 0;
+            let lastZoomHintTime = 0;
+            const HINT_COOLDOWN = 5000; // 5秒冷却
 
             // DOM元素缓存
             const inputTextArea = document.getElementById("input");
@@ -746,32 +620,21 @@
 
             class LocalStorageManager {static set(key, value, expireMinutes = 60) {
                 const expireTime = new Date().getTime() + (expireMinutes * 60 * 1000);
-                const data = {
-                    value,
-                    expire: expireTime
-                };
+                const data = { value, expire: expireTime };
                 localStorage.setItem(key, JSON.stringify(data));}
                 static get(key) {
                     const data = localStorage.getItem(key);
                     if (!data) return null;
                     const { value, expire } = JSON.parse(data);
-                    if (Date.now() > expire) {
-                        localStorage.removeItem(key);
-                        return null;
-                    }
+                    if (Date.now() > expire) { localStorage.removeItem(key); return null; }
                     return value;
                 }
-                static remove(key) {
-                    localStorage.removeItem(key);
-                }
+                static remove(key) { localStorage.removeItem(key); }
             }
 
-            // 自动播放开关功能
             window.toggleAutoplay = function() {
                 autoplayEnabled = !autoplayEnabled;
                 autoplayCheckbox.checked = autoplayEnabled;
-
-                // 更新标签和样式
                 if (autoplayEnabled) {
                     autoplayLabel.textContent = "🎬 自动播放";
                     autoplayToggle.classList.remove("disabled");
@@ -779,23 +642,17 @@
                     autoplayLabel.textContent = "⏸️ 手动播放";
                     autoplayToggle.classList.add("disabled");
                 }
-
-                // 更新当前页面所有视频的播放状态
                 updateAllVideosPlayState();
-
-                // 保存设置到本地存储
-                LocalStorageManager.set("autoplay_v1", autoplayEnabled, 24 * 60); // 24小时有效期
-
-                showFeedback(autoplayEnabled ? "已开启自动播放" : "已关闭自动播放，切换为手动播放模式");
+                LocalStorageManager.set("autoplay_v1", autoplayEnabled, 24 * 60);
+                showFeedback(autoplayEnabled ? "已开启自动播放" : "已关闭自动播放");
             };
 
-            // 更新所有视频的播放状态
             function updateAllVideosPlayState() {
                 const videos = container.querySelectorAll('video');
                 videos.forEach(video => {
                     if (autoplayEnabled) {
                         video.autoplay = true;
-                        video.muted = true; // 自动播放时静音
+                        video.muted = true;
                         video.play().catch(e => console.log('视频播放失败:', e));
                     } else {
                         video.autoplay = false;
@@ -804,47 +661,46 @@
                 });
             }
 
-            // 语法高亮函数
             function syntaxHighlight(json) {
-                if (typeof json !== 'string') {
-                    json = JSON.stringify(json, undefined, 2);
-                }
+                if (typeof json !== 'string') json = JSON.stringify(json, undefined, 2);
                 json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(?=\s*:))|("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*")|(\b(true|false|null)\b)|(\b\d+\b)/g, function (match) {
                     let cls = 'json-number';
                     if (/^"/.test(match)) {
-                        if (/:$/.test(match)) {
-                            cls = 'json-key';
-                        } else {
-                            cls = 'json-string';
-                        }
-                    } else if (/true|false/.test(match)) {
-                        cls = 'json-boolean';
-                    } else if (/null/.test(match)) {
-                        cls = 'json-null';
-                    }
+                        if (/:$/.test(match)) cls = 'json-key';
+                        else cls = 'json-string';
+                    } else if (/true|false/.test(match)) cls = 'json-boolean';
+                    else if (/null/.test(match)) cls = 'json-null';
                     return '<span class="' + cls + '">' + match + '</span>';
                 });
             }
-            // 加载媒体函数
+
             window.loadImages = function() {
-                const exportLen = exportImages(); // 自动导出当前选择的链接
+                const currentHost = window.location.hostname;
+                const officialHost = 'uk9921.github.io';
+                if (currentHost !== officialHost && window.location.protocol !== 'data:') {
+                     setTimeout(() => {
+                      showFeedback("💡 提示：点击顶部右侧版权信息获取最新版工具.", false);
+                      setTimeout(() => hideFeedback(), 5000);  // 显示5秒后消失
+                    }, 800);
+                }
+                const exportLen = exportImages();
                 const text = inputTextArea.value.replace(/\t/g, "\n");
                 const lines = text.split("\n").map(line => line.trim()).filter(line => line !== "");
-                originalImages = lines; // 保存原始媒体链接
-                selectedIndices.size = 0; // 清空已选中的数组
-                groupImages(); // 分组媒体链接
+                originalImages = lines;
+                selectedIndices.size = 0;
+                groupImages();
                 currentPage = 1;
                 totalPages = Math.ceil(images.length / pageSize);
                 updatePagination();
                 renderImages();
                 if (!exportLen) {
-                showFeedback(`加载了 ${originalImages.length} 个媒体链接。`);
+                    setTimeout(() => showFeedback(`加载了 ${originalImages.length} 个媒体链接。`), 500);
                 } else{
-                    showFeedback(`加载了 ${originalImages.length} 个媒体链接。\n ${exportLen} 个内容已备份`);
+                    setTimeout(() => showFeedback(`加载了 ${originalImages.length} 个媒体链接。\n ${exportLen} 个内容已备份`), 500);
                 }
             };
-            // 按行列分组媒体链接
+
             function groupImages() {
                 images = [];
                 for (let i = 0; i < originalImages.length; i += lineSize) {
@@ -852,7 +708,7 @@
                     images.push(group);
                 }
             }
-            // 渲染媒体
+
             function renderImages() {
                 container.innerHTML = "";
                 if (images.length === 0) {
@@ -869,12 +725,11 @@
                        container.appendChild(mediaItem);
                    });
                 });
-                // 更新按钮状态
                 prevButton.disabled = currentPage === 1;
                 nextButton.disabled = currentPage === totalPages;
                 updateExportButton();
             }
-            // 创建文本内容（支持JSON语法高亮）
+
             function createTextContent(text) {
                 const textDiv = document.createElement("div");
                 textDiv.className = "text-content";
@@ -882,16 +737,11 @@
                     try {
                         const jsonObj = JSON.parse(text);
                         textDiv.innerHTML = syntaxHighlight(jsonObj);
-                    } catch (e) {
-                        textDiv.textContent = text; // 如果JSON解析失败，则显示原文本
-                    }
-                } else {
-                    textDiv.textContent = text;
-                }
-                textDiv.setAttribute("aria-label", "文本内容");
+                    } catch (e) { textDiv.textContent = text; }
+                } else { textDiv.textContent = text; }
                 return textDiv;
             }
-            // 创建图片元素
+
             function createImage(src) {
                 const img = document.createElement("img");
                 img.src = src;
@@ -899,47 +749,34 @@
                 img.alt = "图片内容";
                 return img;
             }
-            // 创建视频元素
+
             function createVideo(src) {
                 const video = document.createElement("video");
                 video.src = src;
-                video.autoplay = autoplayEnabled; // 使用自动播放开关状态
-                video.muted = autoplayEnabled; // 自动播放时静音，手动播放时不静音
+                video.autoplay = autoplayEnabled;
+                video.muted = autoplayEnabled;
                 video.loop = true;
-                video.controls = !autoplayEnabled; // 手动播放时显示控件
+                video.controls = !autoplayEnabled;
                 video.className = "media-content";
-                video.setAttribute("aria-label", "Video content");
-
-                // 如果开启自动播放，尝试播放
-                if (autoplayEnabled) {
-                    video.play().catch(e => console.log('视频自动播放失败:', e));
-                }
-
+                if (autoplayEnabled) video.play().catch(e => console.log('视频自动播放失败:', e));
                 return video;
             }
-            // 创建音频元素
+
             function createAudio(src) {
                 const audio = document.createElement("audio");
                 audio.src = src;
                 audio.controls = true;
-                audio.autoplay = autoplayEnabled; // 使用自动播放开关状态
+                audio.autoplay = autoplayEnabled;
                 audio.className = "media-content";
-                audio.setAttribute("aria-label", "音频内容");
                 audio.style.height = "50px"
-
-                // 如果开启自动播放，尝试播放
-                if (autoplayEnabled) {
-                    audio.play().catch(e => console.log('音频自动播放失败:', e));
-                }
-
+                if (autoplayEnabled) audio.play().catch(e => console.log('音频自动播放失败:', e));
                 return audio;
             }
-            // 创建音频按钮
+
             function createAudioButton(video) {
                 const button = document.createElement("button");
                 button.className = "audio-button";
                 button.innerHTML = video.muted ? "🔇" : "🔊";
-                button.setAttribute("aria-label", "切换声音");
                 button.addEventListener("click", (e) => {
                     e.stopPropagation();
                     video.muted = !video.muted;
@@ -947,7 +784,7 @@
                 });
                 return button;
             }
-            // 设置每页行数
+
             const pageSizeInput = document.getElementById("pageSizeInput");
             pageSizeInput.value = pageSize;
             pageSizeInput.addEventListener("change", (e) => {
@@ -963,19 +800,18 @@
                     showFeedback("请输入有效的每页行数（大于0）。", true);
                 }
             });
-            // 设置每行数量
+
             const lineSizeInput = document.getElementById("lineSizeInput");
             lineSizeInput.value = lineSize;
             lineSizeInput.addEventListener("change", (e) => {
                 const val = parseInt(e.target.value);
                 if (!isNaN(val) && val > 0) {
-                    const currentIndex = (currentPage - 1) * pageSize; // 记住当前记录的起始位置
+                    const currentIndex = (currentPage - 1) * pageSize;
                     lineSize = val;
-                    groupImages(); // 重新分组媒体链接
+                    groupImages();
                     totalPages = Math.ceil(images.length / pageSize);
-                    currentPage = Math.floor(currentIndex / pageSize) + 1; // 根据新的pageSize计算当前页
+                    currentPage = Math.floor(currentIndex / pageSize) + 1;
                     updatePagination();
-                    // 设置 grid-template-columns 根据 lineSize
                     container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
                     renderImages();
                     showFeedback(`每行显示数量设置为 ${lineSize}。`);
@@ -983,27 +819,7 @@
                     showFeedback("请输入有效的每行数量（大于0）。", true);
                 }
             });
-            // 添加节流功能
-            function throttle(func, limit) {
-                let lastFunc;
-                let lastRan;
-                return function(...args) {
-                    const context = this;
-                    if (!lastRan) {
-                        func.apply(context, args);
-                        lastRan = Date.now();
-                    } else {
-                        clearTimeout(lastFunc);
-                        lastFunc = setTimeout(function() {
-                            if ((Date.now() - lastRan) >= limit) {
-                                func.apply(context, args);
-                                lastRan = Date.now();
-                            }
-                        }, limit - (Date.now() - lastRan));
-                    }
-                }
-            }
-            // 跳转到指定页码
+
             const goToPageInput = document.getElementById("goToPageInput");
             goToPageInput.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") {
@@ -1019,40 +835,44 @@
                     }
                 }
             });
-            // 上一页
-            window.prevPage = function() {
+
+            // --- 翻页逻辑与弱提醒优化 (Requirement #2) ---
+            window.prevPage = function(isKeyboard = false) {
+                const now = Date.now();
+                if (!isKeyboard && (now - lastPageHintTime > HINT_COOLDOWN)) {
+                    showFeedback("💡 提示：按键盘 ← / → 键可快速翻页");
+                    lastPageHintTime = now;
+                }
                 if (currentPage > 1) {
                     currentPage--;
                     updatePagination();
                     renderImages();
                 }
             };
-            // 下一页
-            window.nextPage = function() {
+
+            window.nextPage = function(isKeyboard = false) {
+                const now = Date.now();
+                if (!isKeyboard && (now - lastPageHintTime > HINT_COOLDOWN)) {
+                    showFeedback("💡 提示：按键盘 ← / → 键可快速翻页");
+                    lastPageHintTime = now;
+                }
                 if (currentPage < totalPages) {
                     currentPage++;
                     updatePagination();
                     renderImages();
                 }
             };
-            // 导出选中的媒体链接
+
             window.exportImages = function() {
-                if (selectedIndices.size === 0) {
-                    //showFeedback("没有选择任何媒体链接。", true);
-                    return null;
-                }
+                if (selectedIndices.size === 0) return null;
                 const sortedIndices = Array.from(selectedIndices).sort((a, b) => a - b);
                 const exported = sortedIndices.map(index => originalImages[index]).join("\n");
                 outputTextArea.value = exported;
-                // 自动选择并复制
                 outputTextArea.select();
-                //document.execCommand("copy");
-                if (selectedIndices.size > 0) {
-                    showFeedback("成功导出！");
-                }
+                if (selectedIndices.size > 0) showFeedback("成功导出！");
                 return selectedIndices.size;
             };
-            // 批量选择所有当前页媒体
+
             window.selectAll = function() {
                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
                checkboxes.forEach(cb => {
@@ -1065,7 +885,7 @@
                showFeedback("所有媒体项已选中。");
                renderImages();
             };
-            // 批量取消选择所有当前页媒体
+
             window.deselectAll = function() {
                const checkboxes = container.querySelectorAll(".checkbox-container input[type='checkbox']");
                checkboxes.forEach(cb => {
@@ -1078,7 +898,7 @@
                showFeedback("所有媒体项已取消选择。");
                renderImages();
             };
-            // 搜索功能
+
             window.performSearch = function() {
                 const query = searchInput.value.trim();
                 if (query === "") {
@@ -1086,20 +906,13 @@
                     return;
                 }
                 let mode = 'keyword';
-                searchModeRadios.forEach(radio => {
-                    if (radio.checked) {
-                        mode = radio.value;
-                    }
-                });
+                searchModeRadios.forEach(radio => { if (radio.checked) mode = radio.value; });
                 if (mode === 'regex') {
-                    try {
-                        new RegExp(query); // 测试正则表达式是否有效
-                    } catch (e) {
+                    try { new RegExp(query); } catch (e) {
                         showFeedback("无效的正则表达式，请检查后重试。", true);
                         return;
                     }
                 }
-                // 过滤媒体项
                 let filtered = [];
                 if (mode === 'keyword') {
                     filtered = originalImages.reduce((acc, url, index) => {
@@ -1125,47 +938,27 @@
                 closeSearch();
                 showFeedback(`搜索后剩余 ${images.length} 个记录。`);
             };
-            // 清空搜索
+
             window.clearSearch = function() {
                 if (confirm("确定要清空搜索条件并恢复所有媒体项吗？")) {
-                    groupImages(); // 重新分组全部媒体链接
+                    groupImages();
                     currentPage = 1;
                     totalPages = Math.ceil(images.length / pageSize);
                     updatePagination();
-                    // 设置 grid-template-columns 根据 lineSize
                     container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
                     renderImages();
                     closeSearch();
                     showFeedback("已清空搜索条件，显示所有媒体项。");
                 }
             };
-            // 打开搜索模态框
-            window.openSearch = function() {
-                searchModal.style.display = "block";
-                searchInput.focus();
-            };
-            // 关闭搜索模态框
-            window.closeSearch = function() {
-                searchModal.style.display = "none";
-                searchInput.value = "";
-            };
-            // 打开command帮助模态框
-            window.openCommandHelp = function() {
-                commandModal.style.display = "block";
-            };
-            // 关闭帮助模态框
-            window.closeCommandHelp = function() {
-                commandModal.style.display = "none";
-            };
-            // 打开帮助模态框
-            window.openHelp = function() {
-                helpModal.style.display = "block";
-            };
-            // 关闭帮助模态框
-            window.closeHelp = function() {
-                helpModal.style.display = "none";
-            };
-            // 自动主题检测和应用
+
+            window.openSearch = function() { searchModal.style.display = "block"; searchInput.focus(); };
+            window.closeSearch = function() { searchModal.style.display = "none"; searchInput.value = ""; };
+            window.openCommandHelp = function() { commandModal.style.display = "block"; };
+            window.closeCommandHelp = function() { commandModal.style.display = "none"; };
+            window.openHelp = function() { helpModal.style.display = "block"; };
+            window.closeHelp = function() { helpModal.style.display = "none"; };
+
             function applyAutomaticTheme() {
                 const savedTheme = LocalStorageManager.get("theme_v2");
                 if (savedTheme) {
@@ -1176,25 +969,16 @@
                     if (hour >= 19 || hour < 6) {
                         document.body.classList.add("dark-theme");
                         showFeedback("为您开启护眼模式☕️")
-                    } else if (hour >=6 && hour < 12) {
-                        document.body.classList.add("light-theme");
-                        showFeedback("早上好，护眼模式已解除🌞");
                     } else {
                         document.body.classList.add("light-theme");
                     }
                 }
             }
 
-            // 加载自动播放设置
             function loadAutoplaySettings() {
                 const savedAutoplay = LocalStorageManager.get("autoplay_v1");
-                if (savedAutoplay !== null) {
-                    autoplayEnabled = savedAutoplay;
-                } else {
-                    autoplayEnabled = true; // 默认开启自动播放
-                }
-
-                // 更新UI状态
+                if (savedAutoplay !== null) autoplayEnabled = savedAutoplay;
+                else autoplayEnabled = true;
                 autoplayCheckbox.checked = autoplayEnabled;
                 if (autoplayEnabled) {
                     autoplayLabel.textContent = "🎬 自动播放";
@@ -1205,12 +989,10 @@
                 }
             }
 
-            // 主题切换函数
             window.toggleTheme = function() {
                 const body = document.body;
                 body.classList.toggle("dark-theme");
                 body.classList.toggle("light-theme");
-                // 保存用户选择到 localStorage
                 if (body.classList.contains("dark-theme")) {
                     LocalStorageManager.set("theme_v2", "dark", 0.1);
                 } else {
@@ -1218,12 +1000,12 @@
                 }
                 showFeedback("已记住您的主题设置(有效期24h)");
             };
-            // 更新分页显示
+
             function updatePagination() {
                 currentSpan.textContent = currentPage;
                 totalSpan.textContent = totalPages;
             }
-            // 更新导出按钮文本
+
             function updateExportButton() {
                 if (selectedIndices.size > 0) {
                     exportButton.innerHTML = `导出选中链接 (${selectedIndices.size})`;
@@ -1233,133 +1015,61 @@
                     exportButton.disabled = true;
                 }
             }
-            // 检查是否为JSON字符串
+
             function isJsonString(str) {
-                try {
-                    const parsed = JSON.parse(str);
-                    return !(typeof parsed === 'number' && !isNaN(parsed));
-                } catch (e) {
-                    return false;
-                }
-                return true;
+                try { const parsed = JSON.parse(str); return !(typeof parsed === 'number' && !isNaN(parsed)); } catch (e) { return false; }
             }
-            // 检查是否为视频文件
-            function isVideo(url) {
-                // 允许视频URL末尾有查询参数
-                return /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
-            }
-            // 检查是否为音频文件
-            function isAudio(url) {
-                return /\.(mp3|wav|aac|flac)(\?.*)?$/i.test(url);
-            }
-            // 检查是否为图片文件
-            function isImage(url) {
-                return /\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i.test(url);
-            }
-            // 显示反馈消息
+            function isVideo(url) { return /\.(mp4|webm|ogg)(\?.*)?$/i.test(url); }
+            function isAudio(url) { return /\.(mp3|wav|aac|flac)(\?.*)?$/i.test(url); }
+            function isImage(url) { return /\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i.test(url); }
+
             function showFeedback(message, isError = false) {
                 feedbackDiv.textContent = message;
                 feedbackDiv.classList.remove("error");
-                if (isError) {
-                    feedbackDiv.classList.add("error");
-                }
+                if (isError) feedbackDiv.classList.add("error");
                 feedbackDiv.classList.add("show");
-                // 在3秒后隐藏反馈消息
-                setTimeout(() => {
-                    feedbackDiv.classList.remove("show");
-                }, 3000);
+                setTimeout(() => { feedbackDiv.classList.remove("show"); }, 3000);
             }
-            // 初始化页面
+
             document.addEventListener("DOMContentLoaded", () => {
-                // 自动主题检测和应用
                 applyAutomaticTheme();
-                // 加载自动播放设置
                 loadAutoplaySettings();
-                // 设置 grid-template-columns 根据 lineSize
                 container.style.gridTemplateColumns = `repeat(${lineSize}, 1fr)`;
-                // 重新计算总页数
                 totalPages = Math.ceil(images.length / pageSize);
-                // 更新分页显示
                 updatePagination();
-                // 渲染媒体
                 renderImages();
             });
-            // 键盘快捷键
+
             document.addEventListener('keydown', function(event) {
-                if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-                    return; // 不在输入框时才响应
+                if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') return;
+                if (event.key === 'ArrowLeft') prevPage(true);
+                else if (event.key === 'ArrowRight') nextPage(true);
+            });
+            
+            // --- Requirement #3: 监听浏览器缩放/双指捏合 ---
+            // 监听双指捏合 (触控板通常模拟 Ctrl + Wheel)
+            document.addEventListener('wheel', function(e) {
+                if (e.ctrlKey) {
+                    showFeedback("💡 提示：无需缩放浏览器，按住 ⌘ (Command) 键移动鼠标即可使用局部放大镜", false);
                 }
-                if (event.key === 'ArrowLeft') { // 左箭头键
-                    prevPage();
-                } else if (event.key === 'ArrowRight') { // 右箭头键
-                    nextPage();
+            }, { passive: true });
+
+            // 监听 Cmd +/- (键盘缩放)
+            document.addEventListener('keydown', function(e) {
+                if ((e.metaKey || e.ctrlKey) && (e.key === '=' || e.key === '+' || e.key === '-')) {
+                     showFeedback("💡 提示：无需缩放浏览器，按住 ⌘ (Command) 键移动鼠标即可使用局部放大镜", false);
                 }
             });
-            // 获取浮动弹出框的元素
+
             const popup = document.getElementById("popup");
             const popupMediaContainer = document.querySelector("#popup .popup-media-container");
-            let currentPopupMedia = null;
-            let popupTimeout;
-            // 显示浮动弹出框函数
-            function showPopup(mediaItem, mediaElement, url) {
-                // 清空之前的内容
-                popupMediaContainer.innerHTML = "";
-                // 根据媒体类型创建克隆元素
-                let clonedMedia;
-                if (mediaElement.querySelector('video')) {
-                    const video = mediaElement.querySelector('video');
-                    clonedMedia = document.createElement('video');
-                    clonedMedia.src = video.src;
-                    clonedMedia.autoplay = autoplayEnabled; // 使用自动播放设置
-                    clonedMedia.muted = autoplayEnabled; // 自动播放时静音
-                    clonedMedia.loop = true;
-                    clonedMedia.controls = !autoplayEnabled; // 手动播放时显示控件
-                    clonedMedia.className = "media-content";
-                    clonedMedia.setAttribute("aria-label", "Video content");
-                } else if (mediaElement.tagName.toLowerCase() === 'img') {
-                    clonedMedia = document.createElement('img');
-                    clonedMedia.src = mediaElement.src;
-                    clonedMedia.className = "media-content";
-                    clonedMedia.alt = "图片内容";
-                } else {
-                    return; // 仅对视频和图片启用弹出框
-                }
-                popupMediaContainer.appendChild(clonedMedia);
-                // 获取原始媒体项的位置
-                const rect = mediaItem.getBoundingClientRect();
-                const popupWidth = 500;
-                const padding = 10; // 距离边缘的距离
-                // 计算弹出框的位置
-                let popupTop = rect.top + window.scrollY;
-                let popupLeft = rect.right + padding + window.scrollX; // 默认在右侧显示
-                let arrowClass = 'arrow-left'; // 默认箭头指向左
-                // 如果弹出框超出窗口右侧边界，则显示在左侧
-                if (popupLeft + popupWidth > window.innerWidth) {
-                    popupLeft = rect.left - popupWidth - padding + window.scrollX;
-                    arrowClass = 'arrow-right'; // 箭头指向右
-                }
-                // 设置弹出框位置
-                popup.style.top = `${popupTop}px`;
-                popup.style.left = `${popupLeft}px`;
-                // 设置箭头方向
-                popup.classList.remove('arrow-left', 'arrow-right');
-                popup.classList.add(arrowClass);
-                // 显示弹出框
-                popup.classList.add("show");
-                // 记录当前弹出的媒体
-                currentPopupMedia = {
-                    mediaItem,
-                    mediaElement: clonedMedia
-                };
-            }
-            // 隐藏浮动弹出框函数
+            
             function hidePopup() {
                 popup.classList.remove("show");
-                popup.classList.remove("arrow-left", "arrow-right"); // 移除箭头类
+                popup.classList.remove("arrow-left", "arrow-right");
                 popupMediaContainer.innerHTML = "";
-                currentPopupMedia = null;
             }
-            // 辅助函数：切换选择状态
+
             function toggleSelection(mediaItem, index, isSelected) {
                if (isSelected) {
                    selectedIndices.add(index);
@@ -1370,50 +1080,59 @@
                }
                updateExportButton();
             }
-            // 修改后的 createMediaItem 函数
+
             function createMediaItem(url, index) {
                 const div = document.createElement("div");
                 div.className = "media-item";
                 let mediaElement;
-                let audioButton = null;
+                let resolutionBadge = document.createElement("div");
+                resolutionBadge.className = "resolution-badge";
+                resolutionBadge.textContent = ""; // 默认空
+                
                 if (isJsonString(url)) {
                     try {
-                        const jsonObj = JSON.stringify(JSON.parse(url), null, 2) + '\n\n'; // 格式化JSON并换行
+                        const jsonObj = JSON.stringify(JSON.parse(url), null, 2) + '\n\n';
                         mediaElement = createTextContent(jsonObj);
-                    } catch (e) {
-                        mediaElement = createTextContent(url); // 如果JSON解析失败，则显示原文本
-                    }
+                    } catch (e) { mediaElement = createTextContent(url); }
                 } else if (isVideo(url)) {
                     const videoContainer = document.createElement("div");
                     videoContainer.className = "video-container";
                     videoContainer.style.position = "relative";
-                    const video = createVideo(url); // 使用修改后的 createVideo 函数
+                    const video = createVideo(url);
+                    
+                    // 获取分辨率 (Requirement #1)
+                    video.addEventListener('loadedmetadata', () => {
+                        resolutionBadge.textContent = `${video.videoWidth} x ${video.videoHeight}`;
+                    });
+
                     videoContainer.appendChild(video);
-                    audioButton = createAudioButton(video);
-                    videoContainer.appendChild(audioButton);
+                    videoContainer.appendChild(createAudioButton(video));
                     mediaElement = videoContainer;
-                    addZoomFunctionality(div, mediaElement); // 传入具体的媒体元素
+                    addZoomFunctionality(div, mediaElement);
                 } else if (isImage(url)) {
                     mediaElement = createImage(url);
-                    addZoomFunctionality(div, mediaElement); // 传入具体的媒体元素
+                    
+                    // 获取分辨率 (Requirement #1)
+                    mediaElement.onload = () => {
+                         resolutionBadge.textContent = `${mediaElement.naturalWidth} x ${mediaElement.naturalHeight}`;
+                    };
+
+                    addZoomFunctionality(div, mediaElement);
                 } else if (isAudio(url)) {
                     mediaElement = createAudio(url);
                 } else {
                     mediaElement = createTextContent(url);
                 }
-                // 复选框容器
+
                 const checkboxContainer = document.createElement("div");
                 checkboxContainer.className = "checkbox-container";
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
-                checkbox.value = index; // 设置为索引
-                checkbox.setAttribute("aria-label", "选择媒体");
-                // 初始化复选框状态
+                checkbox.value = index;
                 if (selectedIndices.has(index)) {
                     checkbox.checked = true;
                     div.classList.add("selected");
                 }
-                // 复选框事件处理
                 checkbox.addEventListener("click", (e) => {
                     e.stopPropagation();
                     toggleSelection(div, index, checkbox.checked);
@@ -1421,19 +1140,30 @@
                 checkboxContainer.appendChild(checkbox);
                 div.appendChild(mediaElement);
                 div.appendChild(checkboxContainer);
-                // 媒体元素点击事件，切换复选框
+                
+                // 添加分辨率标签到容器
+                if (isVideo(url) || isImage(url)) {
+                    div.appendChild(resolutionBadge);
+                }
+
                 mediaElement.addEventListener("click", () => {
                     const isChecked = !checkbox.checked;
                     checkbox.checked = !checkbox.checked;
                     toggleSelection(div, index, isChecked);
                 });
-                // 仅对图片和视频添加悬停弹出框
-                if (isImage(url) || isVideo(url)) {
-                    // 放大功能已经通过 addZoomFunctionality 处理
-                }
                 return div;
             }
+
             function addZoomFunctionality(container, mediaElement) {
+                // 放大提示冷却逻辑 (Requirement #2)
+                mediaElement.addEventListener('mouseenter', () => {
+                     const now = Date.now();
+                     if(now - lastZoomHintTime > HINT_COOLDOWN) {
+                         showFeedback("💡 提示：按住 ⌘ (Command) 键滑动鼠标可放大细节");
+                         lastZoomHintTime = now;
+                     }
+                });
+
                 const magnifierBox = document.createElement('div');
                 magnifierBox.className = 'magnifier-box';
                 container.appendChild(magnifierBox);
@@ -1445,29 +1175,35 @@
                 canvas.height = 400;
                 zoomBox.appendChild(canvas);
                 let naturalWidth, naturalHeight;
-                if (mediaElement.tagName.toLowerCase() === 'img') {
-                    naturalWidth = mediaElement.naturalWidth;
-                    naturalHeight = mediaElement.naturalHeight;
-                    if (naturalWidth === 0 || naturalHeight === 0) {
-                        mediaElement.addEventListener('loadedmetadata', () => {
-                            naturalWidth = mediaElement.naturalWidth;
-                            naturalHeight = mediaElement.naturalHeight;
+                
+                // 获取媒体元素
+                let actualMedia = mediaElement;
+                if (mediaElement.tagName.toLowerCase() === 'div' && mediaElement.querySelector('video')) {
+                    actualMedia = mediaElement.querySelector('video');
+                }
+
+                if (actualMedia.tagName.toLowerCase() === 'img') {
+                    naturalWidth = actualMedia.naturalWidth;
+                    naturalHeight = actualMedia.naturalHeight;
+                    if (!naturalWidth) {
+                        actualMedia.addEventListener('loadedmetadata', () => {
+                            naturalWidth = actualMedia.naturalWidth;
+                            naturalHeight = actualMedia.naturalHeight;
                         });
                     }
-                } else if (mediaElement.tagName.toLowerCase() === 'div') {
-                    mediaElement = mediaElement.querySelector('video');
-                    naturalWidth = mediaElement.videoWidth;
-                    naturalHeight = mediaElement.videoHeight;
-                    if (naturalWidth === 0 || naturalHeight === 0) {
-                        mediaElement.addEventListener('loadedmetadata', () => {
-                            naturalWidth = mediaElement.videoWidth;
-                            naturalHeight = mediaElement.videoHeight;
+                } else if (actualMedia.tagName.toLowerCase() === 'video') {
+                    naturalWidth = actualMedia.videoWidth;
+                    naturalHeight = actualMedia.videoHeight;
+                    if (!naturalWidth) {
+                        actualMedia.addEventListener('loadedmetadata', () => {
+                            naturalWidth = actualMedia.videoWidth;
+                            naturalHeight = actualMedia.videoHeight;
                         });
                     }
                 }
+
                 function throttle(func, limit) {
-                    let lastFunc;
-                    let lastRan;
+                    let lastFunc, lastRan;
                     return function(...args) {
                         const context = this;
                         if (!lastRan) {
@@ -1487,10 +1223,9 @@
                 const sourceWidth = 60;
                 const sourceHeight = 60;
                 let isZoomActive = false;
-                let isMouseHoverMedia = false;
                 let animationFrameId;
                 let lastMouseEvent = null;
-                let hideTimeout;
+                
                 const updateZoom = () => {
                     if (!isZoomActive) return;
                     const e = lastMouseEvent;
@@ -1498,83 +1233,90 @@
                         animationFrameId = requestAnimationFrame(updateZoom);
                         return;
                     }
-                    const rect = mediaElement.getBoundingClientRect();
-                    if ((mediaElement.tagName.toLowerCase() === 'video') && (naturalWidth === 0 || naturalHeight === 0)) {
-                        animationFrameId = requestAnimationFrame(updateZoom);
-                        return;
-                    }
-                    /////
-                    var container = mediaElement.parentElement; // 获取容器元素
-                    if (naturalWidth === 0 || naturalHeight === 0) {
-                        if (mediaElement.tagName.toLowerCase() === 'img') {
-                            naturalWidth = mediaElement.naturalWidth;
-                            naturalHeight = mediaElement.naturalHeight;
-                        } else if (mediaElement.tagName.toLowerCase() === 'video') {
-                            naturalWidth = mediaElement.videoWidth;
-                            naturalHeight = mediaElement.videoHeight;
+                    const rect = actualMedia.getBoundingClientRect();
+                    
+                    // 重新检查尺寸
+                    if (!naturalWidth || !naturalHeight) {
+                        if (actualMedia.tagName === 'IMG') {
+                            naturalWidth = actualMedia.naturalWidth;
+                            naturalHeight = actualMedia.naturalHeight;
+                        } else if (actualMedia.tagName === 'VIDEO') {
+                            naturalWidth = actualMedia.videoWidth;
+                            naturalHeight = actualMedia.videoHeight;
+                        }
+                        if(!naturalWidth) {
+                             animationFrameId = requestAnimationFrame(updateZoom);
+                             return;
                         }
                     }
-                    // 获取原图尺寸
-                    var originalWidth = naturalWidth;
-                    var originalHeight = naturalHeight;
-                    // 获取目标容器尺寸
-                    var containerWidth = container.offsetWidth;
-                    var containerHeight = container.offsetHeight;
-                    // 计算缩放比例
-                    var scaleWidth = containerWidth / naturalWidth;
-                    var scaleHeight = containerHeight / naturalHeight;
-                    var scale = Math.min(scaleWidth, scaleHeight); // 使用较小的比例以确保不超出容器
-                    // 计算缩放后的尺寸
-                    var scaledWidth = originalWidth * scale;
-                    var scaledHeight = originalHeight * scale;
-                    // 确定缩放后的坐标
-                    var media_x = (containerWidth - scaledWidth) // 2;
-                    var media_y = (containerHeight - scaledHeight) // 2;
-                    console.log(`Position X: ${media_x}, Position Y: ${media_y}, containerWidth: ${containerWidth}, containerHeight: ${containerHeight}`);
-                    /////
+
                     const scaleX = naturalWidth / rect.width;
                     const scaleY = naturalHeight / rect.height;
-                    // 获取鼠标在显示区域的坐标
-                    let x = (e.clientX - rect.left); // 在media中的坐标
-                    let y = (e.clientY - rect.top);
-                    x = x * scaleX;
-                    y = y * scaleY;
-                    x = x  + (2*media_x/naturalWidth*x- media_x);
-                    y = y + (2*media_y/naturalHeight*y- media_y);
+                    
+                    // 计算放大镜中心在原图的坐标
+                    // container居中策略导致图像可能有偏移，需要简单计算
+                    // 简化版本：假设object-fit: contain居中
+                    
+                    // 更精确的计算
+                    // 实际显示的图像宽高
+                    const displayRatio = rect.width / rect.height;
+                    const naturalRatio = naturalWidth / naturalHeight;
+                    let renderW = rect.width;
+                    let renderH = rect.height;
+                    let offsetX = 0;
+                    let offsetY = 0;
+
+                    if (displayRatio > naturalRatio) {
+                        // 容器更宽，高度填满，宽度留白
+                        renderW = rect.height * naturalRatio;
+                        offsetX = (rect.width - renderW) / 2;
+                    } else {
+                        // 容器更高，宽度填满，高度留白
+                        renderH = rect.width / naturalRatio;
+                        offsetY = (rect.height - renderH) / 2;
+                    }
+
+                    // 鼠标相对于图片的实际坐标
+                    let mouseXInRender = e.clientX - rect.left - offsetX;
+                    let mouseYInRender = e.clientY - rect.top - offsetY;
+
+                    // 映射到原图坐标
+                    let targetX = (mouseXInRender / renderW) * naturalWidth;
+                    let targetY = (mouseYInRender / renderH) * naturalHeight;
+
                     const ctx = canvas.getContext('2d');
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
                     try {
-                        ctx.drawImage(
-                            mediaElement,
-                            x - (sourceWidth*2 * scaleX / 2), y - (sourceHeight*2 * scaleY / 2), sourceWidth*2 * scaleX, sourceHeight*2 * scaleX,
-                            0, 0, canvas.width, canvas.height
-                        );
-                    } catch (error) {
-                        console.error('绘制到画布时出错:', error);
-                    }
-                    console.log(naturalWidth, naturalHeight, rect.width, rect.height, media_x, media_y, x, y);
+                        // 只有当鼠标在渲染区域内才绘制
+                        if (mouseXInRender >=0 && mouseXInRender <= renderW && mouseYInRender >=0 && mouseYInRender <= renderH) {
+                             ctx.drawImage(
+                                actualMedia,
+                                targetX - sourceWidth, targetY - sourceHeight, sourceWidth * 2, sourceHeight * 2,
+                                0, 0, canvas.width, canvas.height
+                            );
+                        }
+                    } catch (error) { console.error(error); }
+
                     const displayX = e.clientX - rect.left - (sourceWidth / 2);
                     const displayY = e.clientY - rect.top - (sourceHeight / 2);
                     magnifierBox.style.left = `${displayX}px`;
                     magnifierBox.style.top = `${displayY}px`;
                     magnifierBox.style.display = 'block';
+                    
                     let zoomBoxLeft = e.clientX + 32;
                     let zoomBoxTop = e.clientY - 200;
-                    if (zoomBoxLeft + 400 > window.innerWidth) {
-                        zoomBoxLeft = e.clientX - 420;
-                    }
-                    if (zoomBoxTop < 0) {
-                        zoomBoxTop = 0;
-                    } else if (zoomBoxTop + 400 > window.innerHeight) {
-                        zoomBoxTop = window.innerHeight - 400;
-                    }
+                    if (zoomBoxLeft + 400 > window.innerWidth) zoomBoxLeft = e.clientX - 420;
+                    if (zoomBoxTop < 0) zoomBoxTop = 0;
+                    else if (zoomBoxTop + 400 > window.innerHeight) zoomBoxTop = window.innerHeight - 400;
+                    
                     zoomBox.style.left = `${zoomBoxLeft}px`;
                     zoomBox.style.top = `${zoomBoxTop}px`;
                     zoomBox.style.display = 'block';
                     animationFrameId = requestAnimationFrame(updateZoom);
                 }
+
                 const handleMouseMove = throttle((e) => {
-                    clearTimeout(hideTimeout);
                     lastMouseEvent = e;
                     if (e.metaKey) {
                         if (!isZoomActive) {
@@ -1589,8 +1331,10 @@
                             cancelAnimationFrame(animationFrameId);
                         }
                     }
-                }, 1);
-                mediaElement.addEventListener('mousemove', handleMouseMove);
+                }, 16);
+                
+                actualMedia.addEventListener('mousemove', handleMouseMove);
+                
                 const hideZoom = () => {
                     if (isZoomActive) {
                         isZoomActive = false;
@@ -1599,42 +1343,21 @@
                         cancelAnimationFrame(animationFrameId);
                     }
                 }
-                mediaElement.addEventListener('mouseleave', hideZoom);
-                document.addEventListener('keyup', (e) => {
-                    if (e.key === 'Meta') {
-                        hideZoom();
-                    }
-                });
+                actualMedia.addEventListener('mouseleave', hideZoom);
+                document.addEventListener('keyup', (e) => { if (e.key === 'Meta') hideZoom(); });
             }
+
             const commandIcon = document.querySelector('.command-icon');
-            document.addEventListener('keydown', function(e) {
-                if (e.metaKey) {
-                    commandIcon.classList.add('active');
-                }
-            });
-            document.addEventListener('keyup', function(e) {
-                if (e.key === 'Meta') {
-                    commandIcon.classList.remove('active');
-                }
-            });
-            // 确保只添加一次监听器
-            let isCommandPressed = false;
-            // 点击页面其他地方关闭弹出框（可选）
-            document.addEventListener('click', function(event) {
-                if (!popup.contains(event.target)) {
-                    hidePopup();
-                }
-            });
-            // 保存当前页面功能
+            document.addEventListener('keydown', function(e) { if (e.metaKey) commandIcon.classList.add('active'); });
+            document.addEventListener('keyup', function(e) { if (e.key === 'Meta') commandIcon.classList.remove('active'); });
+            document.addEventListener('click', function(event) { if (!popup.contains(event.target)) hidePopup(); });
+
             window.savePage = function() {
-                // 获取当前的媒体链接和选择状态
                 const data = originalImages.map(url => ({
                     url: url,
                     selected: selectedIndices.has(originalImages.indexOf(url))
                 }));
-                // 获取当前页面的HTML内容
                 let currentHtml = document.documentElement.outerHTML;
-                // 替换 JavaScript 变量的初始化内容
                 currentHtml = currentHtml
                     .replace(/let originalImages = \[[\s\S]*?\];/, `let originalImages = ${JSON.stringify(originalImages, null,4)};`)
                     .replace(/let images = \[[\s\S]*?\];/, `let images = ${JSON.stringify(images, null, 4)};`)
@@ -1643,32 +1366,20 @@
                     .replace(/let lineSize = \d+;/, `let lineSize = ${lineSize};`)
                     .replace(/let autoplayEnabled = (true|false);/, `let autoplayEnabled = ${autoplayEnabled};`)
                     .replace(/const selectedIndices = new Set\(\);/, `const selectedIndices = new Set(${JSON.stringify(Array.from(selectedIndices))});`);
-                // 转义 URL 列表中的特殊字符
+                
                 const escapedUrls = originalImages.map(url => {
-                    return url.replace(/&/g, "&amp;")
-                              .replace(/</g, "&lt;")
-                              .replace(/>/g, "&gt;")
-                              .replace(/"/g, "&quot;")
-                              .replace(/'/g, "&#039;");
+                    return url.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
                 }).join("\n");
-                // 替换 <textarea id="input"> 的内容为原始的 URL 列表
+
                 currentHtml = currentHtml.replace(
                     /<textarea\s+id=["']input["'][^>]*>[\s\S]*?<\/textarea>/,
-                    `<textarea id="input" placeholder="每行一个链接，例如：
-            https://example.com/image1.jpg
-            https://example.com/video1.mp4
-            https://example.com/audio1.mp3
-            https://example.com/data1.json">${escapedUrls}</textarea>`
+                    `<textarea id="input" placeholder="每行一个链接...">${escapedUrls}</textarea>`
                 );
-                // 更新自动播放开关状态
-                if (autoplayEnabled) {
-                    currentHtml = currentHtml.replace(/<input type="checkbox" id="autoplayCheckbox"[^>]*>/, '<input type="checkbox" id="autoplayCheckbox" checked>');
-                } else {
-                    currentHtml = currentHtml.replace(/<input type="checkbox" id="autoplayCheckbox"[^>]*>/, '<input type="checkbox" id="autoplayCheckbox">');
-                }
-                // 创建Blob对象
+
+                if (autoplayEnabled) currentHtml = currentHtml.replace(/<input type="checkbox" id="autoplayCheckbox"[^>]*>/, '<input type="checkbox" id="autoplayCheckbox" checked>');
+                else currentHtml = currentHtml.replace(/<input type="checkbox" id="autoplayCheckbox"[^>]*>/, '<input type="checkbox" id="autoplayCheckbox">');
+
                 const blob = new Blob([currentHtml], { type: "text/html" });
-                // 创建下载链接
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
                 link.download = "saved_demo_page.html";
